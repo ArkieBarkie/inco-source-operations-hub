@@ -1,0 +1,2 @@
+date,startTime,endTime,activityType,reference,description,originLocation,destinationLocation,expectedPallets,expectedCases,expectedItems,responsibleEmployee,status,notes
+2026-07-15,09:00,10:00,Leverancierslevering,DEMO-CSV-001,Demo levering via CSV,Demo leverancier,Eigen magazijn Amstelveen,2,0,0,Jorn / Hidde,Verwacht,Demo regel vervangen voor echt gebruik

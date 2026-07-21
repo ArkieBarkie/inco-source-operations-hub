@@ -1,0 +1,2 @@
+import {allSops} from '@/lib/data';import {SopExplorer} from '@/components/sop-explorer';
+export default function Sops(){return <div className="container-page"><p className="label">Kennisbank</p><h1 className="mt-2 text-3xl font-bold text-navy">Alle SOP’s</h1><p className="mb-8 mt-3 text-slate-600">Zoek, filter en vergelijk alle bestaande Inco-Source-procedures.</p><SopExplorer sops={allSops}/></div>}

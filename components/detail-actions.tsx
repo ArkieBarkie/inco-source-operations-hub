@@ -1,0 +1,1 @@
+'use client';export function DetailActions(){return <div className="no-print flex flex-wrap gap-2"><button onClick={()=>window.print()} className="rounded-xl border bg-white px-4 py-2 text-sm font-bold">Printen</button><button onClick={()=>navigator.clipboard.writeText(location.href)} className="rounded-xl border bg-white px-4 py-2 text-sm font-bold">Link kopiëren</button></div>}

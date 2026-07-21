@@ -1,0 +1,4 @@
+import {statusClass} from '@/lib/operations';
+export const StatusBadge=({value}:{value:string})=><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${statusClass(value)}`}>{value}</span>;
+export function PageTitle({eyebrow,title,description,action}:{eyebrow:string;title:string;description?:string;action?:React.ReactNode}){return <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="label">{eyebrow}</p><h1 className="mt-2 text-3xl font-bold text-navy">{title}</h1>{description&&<p className="mt-2 max-w-3xl text-slate-600">{description}</p>}</div>{action}</div>}
+export const Empty=({children='Nog geen gegevens beschikbaar'}:{children?:React.ReactNode})=><div className="rounded-xl border border-dashed p-5 text-center text-sm text-slate-500">{children}</div>;

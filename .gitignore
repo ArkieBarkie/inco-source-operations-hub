@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+.pnpm-store/
+tmp/
+qa/
+artifacts/
+
+# Interne bron- en werkdocumenten worden niet naar de openbare repository gestuurd.
+Final SOP Inco-Source/
+SOPs-herzien/
+SOPs-herzien-Word/
+*.docx
+*.xlsx
+*.zip
+automation-opportunities.md
+data-quality-report.md
+SOP-HERBEOORDELING-*.md
+
+# Lokale logs en systeeminstellingen.
+*.log
+.env*
+!.env.example
+.DS_Store
+Thumbs.db
