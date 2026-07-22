@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import {allSops,findSop} from '@/lib/data';
 import {DetailActions} from '@/components/detail-actions';
+import {WordDocumentLink} from '@/components/word-document-link';
 
 export function generateStaticParams(){return allSops.map(s=>({slug:s.slug}))}
 
@@ -22,7 +23,7 @@ export default async function SopDetail({params}:{params:Promise<{slug:string}>}
     <div className="mt-5 flex justify-end"><DetailActions/></div>
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]">
       <main className="space-y-6">{s.sourceSections.map(section=><Section key={section.title} title={section.title} items={section.content}/>)}</main>
-      <aside className="space-y-6"><section className="card p-6"><h2 className="font-bold text-navy">Documentbeheer</h2><dl className="mt-4 space-y-3 text-sm">{[['Status',s.status],['Versie',s.version],['Ingangsdatum',s.lastUpdated],['Beoordeling',s.reviewDate]].map(([label,value])=><div key={label}><dt className="text-slate-500">{label}</dt><dd className="font-bold">{value}</dd></div>)}</dl></section>{related.length>0&&<section className="card p-6"><h2 className="font-bold text-navy">Gerelateerde SOP’s</h2><div className="mt-4 space-y-2">{related.map((item:any)=><Link className="block rounded-xl bg-slate-50 p-3 text-sm font-bold text-navy hover:bg-blue-50" href={`/sops/${item.slug}`} key={item.id}>{item.sopNumber} · {item.title}</Link>)}</div></section>}</aside>
+      <aside className="space-y-6"><section className="card p-6"><h2 className="font-bold text-navy">Documentbeheer</h2><dl className="mt-4 space-y-3 text-sm">{[['Status',s.status],['Versie',s.version],['Ingangsdatum',s.lastUpdated],['Beoordeling',s.reviewDate]].map(([label,value])=><div key={label}><dt className="text-slate-500">{label}</dt><dd className="font-bold">{value}</dd></div>)}</dl><div className="mt-5 border-t pt-5"><WordDocumentLink fileName={s.sourceFile} showDownload/><p className="mt-3 text-xs leading-5 text-slate-500">Open de originele versie om de opmaak te bekijken of lokaal te reviseren.</p></div></section>{related.length>0&&<section className="card p-6"><h2 className="font-bold text-navy">Gerelateerde SOP’s</h2><div className="mt-4 space-y-2">{related.map((item:any)=><Link className="block rounded-xl bg-slate-50 p-3 text-sm font-bold text-navy hover:bg-blue-50" href={`/sops/${item.slug}`} key={item.id}>{item.sopNumber} · {item.title}</Link>)}</div></section>}</aside>
     </div>
   </div>
 }

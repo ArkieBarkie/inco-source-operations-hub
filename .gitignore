@@ -11,6 +11,7 @@ Final SOP Inco-Source/
 SOPs-herzien/
 SOPs-herzien-Word/
 *.docx
+!public/sop-documents/*.docx
 *.xlsx
 *.zip
 automation-opportunities.md
