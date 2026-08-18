@@ -20,9 +20,12 @@
       "Proceseigenaar - verantwoordelijk voor: werk sop en hulpmiddelen bij",
       "Jorn/Hidde - verantwoordelijk voor: review en sluit"
     ],
-    "systems": [],
+    "systems": [
+      "Odoo voor order- en factuurgegevens"
+    ],
     "documents": [
-      "Centraal actieregister, afwijkingsdossier, reviewverslag, gewijzigde SOP en bewijs van effectiviteit."
+      "Centraal actieregister, afwijkingsdossier, reviewverslag, gewijzigde SOP en bewijs van effectiviteit.",
+      "Wekelijks stuurbeeld met vaste brondefinitie, eigenaar en vervolgstap."
     ],
     "steps": [
       "Registreer aanleiding - Leg vast wat is gewijzigd of fout gegaan, welke processen geraakt zijn en wat het mogelijke risico is. Output: Dossier met duidelijke aanleiding en eigenaar.",
@@ -31,7 +34,8 @@
       "Plan de actie - Leg actie, eigenaar, deadline, verwacht bewijs en beoogd resultaat centraal vast. Output: Actie is uitvoerbaar en meetbaar.",
       "Controleer kritieke wijziging - Beoordeel wijzigingen met financiële, voorraad-, klant- of compliance-impact voordat zij worden gesloten. Output: Onafhankelijke controle vastgelegd.",
       "Werk SOP en hulpmiddelen bij - Pas werkwijze, checklist, formulier of systeemveld aan zodra de standaard verandert; archiveer de oude versie. Output: Alleen actuele versie is beschikbaar.",
-      "Review en sluit - Beoordeel bewijs en effect; bespreek open acties, klachten, voorraad, leveranciers/3PL en risico’s per kwartaal. Output: Actie gesloten of met nieuwe deadline geëscaleerd."
+      "Review en sluit - Beoordeel bewijs en effect; bespreek open acties, klachten, voorraad, leveranciers/3PL en risico’s per kwartaal. Output: Actie gesloten of met nieuwe deadline geëscaleerd.",
+      "Wekelijkse operationele sturing - Bespreek lever-/doorlooptijden, wat deze week binnenkomt, wat nog moet worden afgehaald, welke orders zonder voortgang staan inclusief ouderdom en wat te laat is. Leg acties vast met eigenaar en datum. Output: Actueel weekbeeld met concrete vervolgacties."
     ],
     "exceptions": [
       "Kleine eenmalige fout: Direct corrigeren en kort vastleggen wat is hersteld; geen uitgebreid verbeterdossier nodig.",
@@ -48,7 +52,12 @@
       "Open kritieke acties",
       "acties op tijd afgerond",
       "herhaalde oorzaken",
-      "SOP’s tijdig beoordeeld. Bespreek deze per kwartaal."
+      "SOP’s tijdig beoordeeld. Bespreek deze per kwartaal.",
+      "Lever- en doorlooptijden",
+      "Wat deze week binnenkomt",
+      "Wat deze week nog moet worden afgehaald",
+      "Orders zonder voortgang en ouderdom",
+      "Te late leveringen en afhalingen"
     ],
     "commonMistakes": [
       "Aanleiding, impact en eigenaar zijn vastgelegd.",
@@ -56,15 +65,16 @@
       "Deadline en vereist bewijs staan centraal geregistreerd.",
       "Kritieke wijziging is door de andere compagnon beoordeeld.",
       "Gerelateerde SOP’s, formulieren en systeemvelden zijn bijgewerkt.",
-      "Effect van de actie is aantoonbaar beoordeeld."
+      "Effect van de actie is aantoonbaar beoordeeld.",
+      "Een KPI tonen zonder vaste definitie, bron of vervolgstap."
     ],
     "relatedSops": [
       "SOP-013"
     ],
     "status": "Actief",
-    "version": "3.0",
-    "lastUpdated": "2026-07-21",
-    "reviewDate": "2027-07-21",
+    "version": "3.1",
+    "lastUpdated": "2026-08-18",
+    "reviewDate": "2027-08-18",
     "keywords": [
       "21-07-2026",
       "21-07-2027",
@@ -359,10 +369,16 @@
       "zijn",
       "zodra",
       "zwaarte",
-      "zwakte"
+      "zwakte",
+      "odoo",
+      "weeksturing",
+      "doorlooptijd",
+      "afhalen",
+      "ouderdom",
+      "te laat"
     ],
     "sourceFile": "SOP-001 QMS-beheer en verbetercyclus.docx",
-    "fullText": "STANDARD OPERATING PROCEDURE\nQMS-beheer en verbetercyclus\nSOP-001 • Inco-Source\nHoofdregel Deze SOP start bij een proceswijziging, fout met herhalingsrisico, nieuwe eis, partnerwijziging of geplande kwartaalreview. De uitvoering eindigt pas wanneer actie aantoonbaar gesloten, effect beoordeeld en de actuele werkwijze gepubliceerd.\nDoel, startpunt en scope\nDoel: Borgt dat werkwijzen actueel blijven, afwijkingen leiden tot passende acties en structurele problemen aantoonbaar worden opgelost.\nStartpunt: Een proceswijziging, fout met herhalingsrisico, nieuwe eis, partnerwijziging of geplande kwartaalreview. Eindpunt: Actie aantoonbaar gesloten, effect beoordeeld en de actuele werkwijze gepubliceerd.\nScope: Alle SOP’s, vaste werkwijzen, afwijkingen, verbeteracties en periodieke bedrijfsreviews van Inco-Source.\nVereisten\nDefinities en afkortingen\nProcesstappen\nSignaal → Risico → Beheersing → Oorzaak → Actie → Controle → Publicatie\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Centraal actieregister, afwijkingsdossier, reviewverslag, gewijzigde SOP en bewijs van effectiviteit.\nKPI-sturing: Open kritieke acties; acties op tijd afgerond; herhaalde oorzaken; SOP’s tijdig beoordeeld. Bespreek deze per kwartaal.\nGerelateerde SOP’s: SOP-013 en alle proces-SOP’s waarop een wijziging betrekking heeft.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Besturing & kwaliteit\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nAanleiding | Een concrete wijziging, afwijking, risico of geplande review is benoemd.\nRegistratie | Een centraal actie-/afwijkingsregister en vaste dossierlocatie zijn beschikbaar.\nEigenaarschap | Impact, eigenaar, streefdatum en vereist bewijs kunnen worden vastgelegd.\nGoedkeuring | Voor kritieke wijzigingen is een tweede beoordeling door Jorn of Hidde beschikbaar.\nBegrip | Betekenis\nQMS | Quality Management System: het geheel van beheerste werkwijzen, registraties en verbeteracties.\nCorrectie | Direct herstel van een vastgestelde fout of afwijking.\nVerbeteractie | Actie die de oorzaak of het herhalingsrisico structureel vermindert.\nProceseigenaar | Persoon die verantwoordelijk is voor werking, actualiteit en beoordeling van het proces.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Registreer aanleiding | Leg vast wat is gewijzigd of fout gegaan, welke processen geraakt zijn en wat het mogelijke risico is. | Dossier met duidelijke aanleiding en eigenaar.\n2 | Uitvoerder | Beheers directe impact | Stop of begrens de activiteit wanneer klant, product, voorraad, financiën of compliance geraakt kan worden. | Tijdelijke beheersmaatregel is actief.\n3 | Jorn/Hidde | Bepaal oorzaak en zwaarte | Gebruik een korte oorzaakanalyse; verdiep alleen bij een kritisch of terugkerend probleem. | Keuze: correctie, verbeteractie of escalatie.\n4 | Uitvoerder | Plan de actie | Leg actie, eigenaar, deadline, verwacht bewijs en beoogd resultaat centraal vast. | Actie is uitvoerbaar en meetbaar.\n5 | Tweede controle | Controleer kritieke wijziging | Beoordeel wijzigingen met financiële, voorraad-, klant- of compliance-impact voordat zij worden gesloten. | Onafhankelijke controle vastgelegd.\n6 | Proceseigenaar | Werk SOP en hulpmiddelen bij | Pas werkwijze, checklist, formulier of systeemveld aan zodra de standaard verandert; archiveer de oude versie. | Alleen actuele versie is beschikbaar.\n7 | Jorn/Hidde | Review en sluit | Beoordeel bewijs en effect; bespreek open acties, klachten, voorraad, leveranciers/3PL en risico’s per kwartaal. | Actie gesloten of met nieuwe deadline geëscaleerd.\nBesluit | Wanneer toepassen\nDirect herstellen | Eenmalige fout, beperkte impact, duidelijke oorzaak en geen aannemelijk herhalingsrisico.\nVerbeteractie | Fout kan terugkomen, raakt meerdere dossiers of toont een structurele zwakte.\nStop / extern advies | Mogelijk productveiligheids-, wettelijk, fraudegerelateerd of ernstig financieel risico.\nCheck | Controlepunt\n☐ | Aanleiding, impact en eigenaar zijn vastgelegd.\n☐ | Tijdelijke beheersmaatregel is genomen waar nodig.\n☐ | Deadline en vereist bewijs staan centraal geregistreerd.\n☐ | Kritieke wijziging is door de andere compagnon beoordeeld.\n☐ | Gerelateerde SOP’s, formulieren en systeemvelden zijn bijgewerkt.\n☐ | Effect van de actie is aantoonbaar beoordeeld.\nUitzondering | Verplichte reactie\nKleine eenmalige fout | Direct corrigeren en kort vastleggen wat is hersteld; geen uitgebreid verbeterdossier nodig.\nTerugkerende fout | Niet opnieuw alleen corrigeren: oorzaak, actie en effectiviteitscontrole verplicht.\nKritiek/compliance-risico | Activiteit blokkeren en zo nodig een bevoegde externe deskundige inschakelen.\nActie loopt uit | Nieuwe datum en reden vastleggen; kritieke vertraging samen beoordelen.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Volledige herstructurering; lichte verbetercyclus, duidelijke vrijgave en centrale beheer-/revisiesectie toegevoegd. | Inco-Source – Operations | Jorn / Hidde",
+    "fullText": "STANDARD OPERATING PROCEDURE\nQMS-beheer en verbetercyclus\nSOP-001 • Inco-Source\nHoofdregel Deze SOP start bij een proceswijziging, fout met herhalingsrisico, nieuwe eis, partnerwijziging of geplande kwartaalreview. De uitvoering eindigt pas wanneer actie aantoonbaar gesloten, effect beoordeeld en de actuele werkwijze gepubliceerd.\nDoel, startpunt en scope\nDoel: Borgt dat werkwijzen actueel blijven, afwijkingen leiden tot passende acties en structurele problemen aantoonbaar worden opgelost.\nStartpunt: Een proceswijziging, fout met herhalingsrisico, nieuwe eis, partnerwijziging of geplande kwartaalreview. Eindpunt: Actie aantoonbaar gesloten, effect beoordeeld en de actuele werkwijze gepubliceerd.\nScope: Alle SOP’s, vaste werkwijzen, afwijkingen, verbeteracties en periodieke bedrijfsreviews van Inco-Source.\nVereisten\nDefinities en afkortingen\nProcesstappen\nSignaal → Risico → Beheersing → Oorzaak → Actie → Controle → Publicatie\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Centraal actieregister, afwijkingsdossier, reviewverslag, gewijzigde SOP en bewijs van effectiviteit.\nKPI-sturing: Open kritieke acties; acties op tijd afgerond; herhaalde oorzaken; SOP’s tijdig beoordeeld. Bespreek deze per kwartaal.\nGerelateerde SOP’s: SOP-013 en alle proces-SOP’s waarop een wijziging betrekking heeft.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Besturing & kwaliteit\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nAanleiding | Een concrete wijziging, afwijking, risico of geplande review is benoemd.\nRegistratie | Een centraal actie-/afwijkingsregister en vaste dossierlocatie zijn beschikbaar.\nEigenaarschap | Impact, eigenaar, streefdatum en vereist bewijs kunnen worden vastgelegd.\nGoedkeuring | Voor kritieke wijzigingen is een tweede beoordeling door Jorn of Hidde beschikbaar.\nBegrip | Betekenis\nQMS | Quality Management System: het geheel van beheerste werkwijzen, registraties en verbeteracties.\nCorrectie | Direct herstel van een vastgestelde fout of afwijking.\nVerbeteractie | Actie die de oorzaak of het herhalingsrisico structureel vermindert.\nProceseigenaar | Persoon die verantwoordelijk is voor werking, actualiteit en beoordeling van het proces.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Registreer aanleiding | Leg vast wat is gewijzigd of fout gegaan, welke processen geraakt zijn en wat het mogelijke risico is. | Dossier met duidelijke aanleiding en eigenaar.\n2 | Uitvoerder | Beheers directe impact | Stop of begrens de activiteit wanneer klant, product, voorraad, financiën of compliance geraakt kan worden. | Tijdelijke beheersmaatregel is actief.\n3 | Jorn/Hidde | Bepaal oorzaak en zwaarte | Gebruik een korte oorzaakanalyse; verdiep alleen bij een kritisch of terugkerend probleem. | Keuze: correctie, verbeteractie of escalatie.\n4 | Uitvoerder | Plan de actie | Leg actie, eigenaar, deadline, verwacht bewijs en beoogd resultaat centraal vast. | Actie is uitvoerbaar en meetbaar.\n5 | Tweede controle | Controleer kritieke wijziging | Beoordeel wijzigingen met financiële, voorraad-, klant- of compliance-impact voordat zij worden gesloten. | Onafhankelijke controle vastgelegd.\n6 | Proceseigenaar | Werk SOP en hulpmiddelen bij | Pas werkwijze, checklist, formulier of systeemveld aan zodra de standaard verandert; archiveer de oude versie. | Alleen actuele versie is beschikbaar.\n7 | Jorn/Hidde | Review en sluit | Beoordeel bewijs en effect; bespreek open acties, klachten, voorraad, leveranciers/3PL en risico’s per kwartaal. | Actie gesloten of met nieuwe deadline geëscaleerd.\nBesluit | Wanneer toepassen\nDirect herstellen | Eenmalige fout, beperkte impact, duidelijke oorzaak en geen aannemelijk herhalingsrisico.\nVerbeteractie | Fout kan terugkomen, raakt meerdere dossiers of toont een structurele zwakte.\nStop / extern advies | Mogelijk productveiligheids-, wettelijk, fraudegerelateerd of ernstig financieel risico.\nCheck | Controlepunt\n☐ | Aanleiding, impact en eigenaar zijn vastgelegd.\n☐ | Tijdelijke beheersmaatregel is genomen waar nodig.\n☐ | Deadline en vereist bewijs staan centraal geregistreerd.\n☐ | Kritieke wijziging is door de andere compagnon beoordeeld.\n☐ | Gerelateerde SOP’s, formulieren en systeemvelden zijn bijgewerkt.\n☐ | Effect van de actie is aantoonbaar beoordeeld.\nUitzondering | Verplichte reactie\nKleine eenmalige fout | Direct corrigeren en kort vastleggen wat is hersteld; geen uitgebreid verbeterdossier nodig.\nTerugkerende fout | Niet opnieuw alleen corrigeren: oorzaak, actie en effectiviteitscontrole verplicht.\nKritiek/compliance-risico | Activiteit blokkeren en zo nodig een bevoegde externe deskundige inschakelen.\nActie loopt uit | Nieuwe datum en reden vastleggen; kritieke vertraging samen beoordelen.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Volledige herstructurering; lichte verbetercyclus, duidelijke vrijgave en centrale beheer-/revisiesectie toegevoegd. | Inco-Source – Operations | Jorn / Hidde\n\nAanvulling vragenlijst Jorn (2026-08-18)\nOdoo is bevestigd als bron voor orders en facturen.\nDe wekelijkse sturing omvat lever-/doorlooptijden, inkomend deze week, nog af te halen, orders zonder voortgang met ouderdom en te late activiteiten.\nKPI’s worden pas actief gebruikt wanneer definitie, bron en vervolgstap zijn vastgelegd.",
     "sourceSections": [
       {
         "title": "Doel",
@@ -454,7 +470,18 @@
           "herhaalde oorzaken",
           "SOP’s tijdig beoordeeld. Bespreek deze per kwartaal."
         ]
+      },
+      {
+        "title": "Aanvulling vragenlijst Jorn (2026-08-18)",
+        "content": [
+          "Odoo is bevestigd als bron voor orders en facturen.",
+          "De wekelijkse sturing omvat lever-/doorlooptijden, inkomend deze week, nog af te halen, orders zonder voortgang met ouderdom en te late activiteiten.",
+          "KPI’s worden pas actief gebruikt wanneer definitie, bron en vervolgstap zijn vastgelegd."
+        ]
       }
+    ],
+    "supplementalSources": [
+      "Kopie van Inco-Source Vragenlijst (003).xlsx — ingevuld door Jorn, verwerkt 2026-08-18"
     ]
   },
   {
@@ -483,11 +510,11 @@
       "Productdossier, specificaties, certificaten/verklaringen, beperkingenregister, vrijgavebesluit en vervaldatumbewaking."
     ],
     "steps": [
-      "Maak productdossier - Leg leverancier, fabrikant, omschrijving, SKU, eenheid, verpakking, barcode, afmetingen, gewicht en logistieke kenmerken vast. Output: Eén centraal en uniek productdossier.",
+      "Maak productdossier - Leg minimaal HS-code, land van oorsprong, gewicht, fabrikantreferentie, productomschrijving, prijs en verpakkingsgrootte vast. Registreer daarnaast leverancier, fabrikant, SKU, eenheid, barcode, afmetingen en overige logistieke kenmerken waar van toepassing. Output: Eén centraal en uniek productdossier.",
       "Bepaal vereisten - Bepaal per product, markt en klant welke wettelijke, product-, batch/lot-, taal- en houdbaarheidsvereisten gelden. Output: Documentenlijst en beperkingen zijn bekend.",
       "Verzamel bewijs - Vraag geldige certificaten, specificaties, verklaringen en fabrikantgegevens op en koppel die aan product en leverancier. Output: Volledige, herleidbare documentset.",
       "Controleer inhoud - Controleer identiteit, geldigheid, scope, taal, batch/lot, houdbaarheid en eventuele verkoop- of verzendbeperkingen. Output: Afwijkingen en ontbrekende gegevens zichtbaar.",
-      "Controleer kritieke velden - Controleer SKU, eenheid, barcode, product-/documentkoppeling en beperkingen. Output: Vier-ogencontrole vastgelegd.",
+      "Controleer kritieke velden - Controleer minimaal HS-code, oorsprong, gewicht, fabrikantreferentie, productomschrijving, prijs, verpakkingsgrootte, SKU, eenheid, barcode, product-/documentkoppeling en beperkingen. Output: Vier-ogencontrole vastgelegd.",
       "Neem vrijgavebesluit - Kies vrijgeven, voorwaardelijk vrijgeven of blokkeren en leg reden, voorwaarden en einddatum vast. Output: Productstatus is eenduidig.",
       "Bewaak wijzigingen - Volg vervaldata en herbeoordeel bij wijziging van product, leverancier, markt of eis. Output: Geen verlopen kritisch document in actief dossier."
     ],
@@ -514,7 +541,8 @@
       "Kritieke documenten zijn geldig en aan het juiste product gekoppeld.",
       "Batch/lot, houdbaarheid en traceerbaarheid zijn ingericht waar nodig.",
       "Land-, klant- en verzendbeperkingen zijn vastgelegd.",
-      "Tweede controle en vrijgavebesluit zijn aantoonbaar."
+      "Tweede controle en vrijgavebesluit zijn aantoonbaar.",
+      "HS-code, oorsprong, gewicht, fabrikantreferentie, productomschrijving, prijs en verpakkingsgrootte zijn compleet en gecontroleerd."
     ],
     "relatedSops": [
       "SOP-003",
@@ -523,9 +551,9 @@
       "SOP-012"
     ],
     "status": "Actief",
-    "version": "3.0",
-    "lastUpdated": "2026-07-21",
-    "reviewDate": "2027-07-21",
+    "version": "3.1",
+    "lastUpdated": "2026-08-18",
+    "reviewDate": "2027-08-18",
     "keywords": [
       "21-07-2026",
       "21-07-2027",
@@ -819,10 +847,15 @@
       "wordt",
       "zichtbaar",
       "zijn",
-      "zorgt"
+      "zorgt",
+      "hs-code",
+      "oorsprong",
+      "fabrikantreferentie",
+      "productomschrijving",
+      "verpakkingsgrootte"
     ],
     "sourceFile": "SOP-002 Product- en compliancebeheer.docx",
-    "fullText": "STANDARD OPERATING PROCEDURE\nProduct- en compliancebeheer\nSOP-002 • Inco-Source\nHoofdregel Deze SOP start bij nieuw of gewijzigd artikel, leverancier, verpakking, markt, certificaat, batch-/lotvereiste of houdbaarheid. De uitvoering eindigt pas wanneer productdossier is vrijgegeven, voorwaardelijk vrijgegeven of geblokkeerd met reden en eventuele einddatum.\nDoel, startpunt en scope\nDoel: Zorgt dat ieder product vóór inkoop, verkoop of verzending correct is geïdentificeerd, gedocumenteerd en vrijgegeven voor de juiste markt en klant.\nStartpunt: Nieuw of gewijzigd artikel, leverancier, verpakking, markt, certificaat, batch-/lotvereiste of houdbaarheid. Eindpunt: Productdossier is vrijgegeven, voorwaardelijk vrijgegeven of geblokkeerd met reden en eventuele einddatum.\nScope: Medische en dentale producten, overige handelsartikelen, samples, certificaten, technische dossiers en land-/klantbeperkingen.\nVereisten\nDefinities en afkortingen\nProcesstappen\nIdentificatie → Eisen → Documenten → Controle → Tweede check → Besluit → Bewaking\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Productdossier, specificaties, certificaten/verklaringen, beperkingenregister, vrijgavebesluit en vervaldatumbewaking.\nKPI-sturing: Productdossiers volledig; kritieke documenten tijdig vernieuwd; blokkades door ontbrekende documentatie; correcties op stamgegevens.\nGerelateerde SOP’s: SOP-003, SOP-005, SOP-009 en SOP-012.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Product & compliance\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nProductidentiteit | Leverancier, fabrikant, artikelomschrijving, SKU en verpakking zijn bekend.\nToepassing | Beoogde markt, klant, gebruik en eventuele landbeperkingen zijn bepaald.\nBronbewijs | Actuele specificaties, certificaten en verklaringen zijn opvraagbaar bij een betrouwbare bron.\nBesluitvorming | Vrijgave, voorwaardelijke vrijgave of blokkering kan door Jorn/Hidde worden vastgelegd.\nBegrip | Betekenis\nSKU | Unieke interne artikelcode voor een product en uitvoering/verpakking.\nBatch/lot | Identificeerbare productie- of leveringspartij voor traceerbaarheid.\nCOA | Certificate of Analysis: productspecifiek analyse- of kwaliteitscertificaat.\nVrijgave | Aantoonbaar besluit dat een product onder vastgelegde voorwaarden mag worden gebruikt/verkocht.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Maak productdossier | Leg leverancier, fabrikant, omschrijving, SKU, eenheid, verpakking, barcode, afmetingen, gewicht en logistieke kenmerken vast. | Eén centraal en uniek productdossier.\n2 | Uitvoerder | Bepaal vereisten | Bepaal per product, markt en klant welke wettelijke, product-, batch/lot-, taal- en houdbaarheidsvereisten gelden. | Documentenlijst en beperkingen zijn bekend.\n3 | Uitvoerder | Verzamel bewijs | Vraag geldige certificaten, specificaties, verklaringen en fabrikantgegevens op en koppel die aan product en leverancier. | Volledige, herleidbare documentset.\n4 | Uitvoerder | Controleer inhoud | Controleer identiteit, geldigheid, scope, taal, batch/lot, houdbaarheid en eventuele verkoop- of verzendbeperkingen. | Afwijkingen en ontbrekende gegevens zichtbaar.\n5 | Tweede controle | Controleer kritieke velden | Controleer SKU, eenheid, barcode, product-/documentkoppeling en beperkingen. | Vier-ogencontrole vastgelegd.\n6 | Jorn/Hidde | Neem vrijgavebesluit | Kies vrijgeven, voorwaardelijk vrijgeven of blokkeren en leg reden, voorwaarden en einddatum vast. | Productstatus is eenduidig.\n7 | Proceseigenaar | Bewaak wijzigingen | Volg vervaldata en herbeoordeel bij wijziging van product, leverancier, markt of eis. | Geen verlopen kritisch document in actief dossier.\nBesluit | Wanneer toepassen\nVrijgeven | Verplichte gegevens en documenten zijn geldig, passend en compleet.\nVoorwaardelijk | Alleen niet-kritieke informatie ontbreekt; beperking, eigenaar en einddatum zijn vastgelegd.\nBlokkeren | Identiteit, kritisch document, productkoppeling of markttoegang is onzeker.\nCheck | Controlepunt\n☐ | Product, leverancier en fabrikant zijn ondubbelzinnig geïdentificeerd.\n☐ | SKU, eenheid, verpakking en barcode zijn gecontroleerd.\n☐ | Kritieke documenten zijn geldig en aan het juiste product gekoppeld.\n☐ | Batch/lot, houdbaarheid en traceerbaarheid zijn ingericht waar nodig.\n☐ | Land-, klant- en verzendbeperkingen zijn vastgelegd.\n☐ | Tweede controle en vrijgavebesluit zijn aantoonbaar.\nUitzondering | Verplichte reactie\nKritisch document ontbreekt | Geen inkoop, verkoop of verzending; product blijft geblokkeerd.\nSample | Vereenvoudigde commerciële inrichting mag, maar identiteit, traceerbaarheid en compliance blijven verplicht.\nNieuwe markt/onduidelijke classificatie | Schriftelijk laten bevestigen door bevoegde specialist, fabrikant of passende deskundige.\nWijziging verpakkingseenheid | Impact op open voorraad, orders, barcode en prijs eerst controleren.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Productvrijgavecheck, vaste beslisstatus en beheer van documentverval toegevoegd; jargon en dubbels verwijderd. | Inco-Source – Operations | Jorn / Hidde",
+    "fullText": "STANDARD OPERATING PROCEDURE\nProduct- en compliancebeheer\nSOP-002 • Inco-Source\nHoofdregel Deze SOP start bij nieuw of gewijzigd artikel, leverancier, verpakking, markt, certificaat, batch-/lotvereiste of houdbaarheid. De uitvoering eindigt pas wanneer productdossier is vrijgegeven, voorwaardelijk vrijgegeven of geblokkeerd met reden en eventuele einddatum.\nDoel, startpunt en scope\nDoel: Zorgt dat ieder product vóór inkoop, verkoop of verzending correct is geïdentificeerd, gedocumenteerd en vrijgegeven voor de juiste markt en klant.\nStartpunt: Nieuw of gewijzigd artikel, leverancier, verpakking, markt, certificaat, batch-/lotvereiste of houdbaarheid. Eindpunt: Productdossier is vrijgegeven, voorwaardelijk vrijgegeven of geblokkeerd met reden en eventuele einddatum.\nScope: Medische en dentale producten, overige handelsartikelen, samples, certificaten, technische dossiers en land-/klantbeperkingen.\nVereisten\nDefinities en afkortingen\nProcesstappen\nIdentificatie → Eisen → Documenten → Controle → Tweede check → Besluit → Bewaking\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Productdossier, specificaties, certificaten/verklaringen, beperkingenregister, vrijgavebesluit en vervaldatumbewaking.\nKPI-sturing: Productdossiers volledig; kritieke documenten tijdig vernieuwd; blokkades door ontbrekende documentatie; correcties op stamgegevens.\nGerelateerde SOP’s: SOP-003, SOP-005, SOP-009 en SOP-012.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Product & compliance\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nProductidentiteit | Leverancier, fabrikant, artikelomschrijving, SKU en verpakking zijn bekend.\nToepassing | Beoogde markt, klant, gebruik en eventuele landbeperkingen zijn bepaald.\nBronbewijs | Actuele specificaties, certificaten en verklaringen zijn opvraagbaar bij een betrouwbare bron.\nBesluitvorming | Vrijgave, voorwaardelijke vrijgave of blokkering kan door Jorn/Hidde worden vastgelegd.\nBegrip | Betekenis\nSKU | Unieke interne artikelcode voor een product en uitvoering/verpakking.\nBatch/lot | Identificeerbare productie- of leveringspartij voor traceerbaarheid.\nCOA | Certificate of Analysis: productspecifiek analyse- of kwaliteitscertificaat.\nVrijgave | Aantoonbaar besluit dat een product onder vastgelegde voorwaarden mag worden gebruikt/verkocht.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Maak productdossier | Leg leverancier, fabrikant, omschrijving, SKU, eenheid, verpakking, barcode, afmetingen, gewicht en logistieke kenmerken vast. | Eén centraal en uniek productdossier.\n2 | Uitvoerder | Bepaal vereisten | Bepaal per product, markt en klant welke wettelijke, product-, batch/lot-, taal- en houdbaarheidsvereisten gelden. | Documentenlijst en beperkingen zijn bekend.\n3 | Uitvoerder | Verzamel bewijs | Vraag geldige certificaten, specificaties, verklaringen en fabrikantgegevens op en koppel die aan product en leverancier. | Volledige, herleidbare documentset.\n4 | Uitvoerder | Controleer inhoud | Controleer identiteit, geldigheid, scope, taal, batch/lot, houdbaarheid en eventuele verkoop- of verzendbeperkingen. | Afwijkingen en ontbrekende gegevens zichtbaar.\n5 | Tweede controle | Controleer kritieke velden | Controleer SKU, eenheid, barcode, product-/documentkoppeling en beperkingen. | Vier-ogencontrole vastgelegd.\n6 | Jorn/Hidde | Neem vrijgavebesluit | Kies vrijgeven, voorwaardelijk vrijgeven of blokkeren en leg reden, voorwaarden en einddatum vast. | Productstatus is eenduidig.\n7 | Proceseigenaar | Bewaak wijzigingen | Volg vervaldata en herbeoordeel bij wijziging van product, leverancier, markt of eis. | Geen verlopen kritisch document in actief dossier.\nBesluit | Wanneer toepassen\nVrijgeven | Verplichte gegevens en documenten zijn geldig, passend en compleet.\nVoorwaardelijk | Alleen niet-kritieke informatie ontbreekt; beperking, eigenaar en einddatum zijn vastgelegd.\nBlokkeren | Identiteit, kritisch document, productkoppeling of markttoegang is onzeker.\nCheck | Controlepunt\n☐ | Product, leverancier en fabrikant zijn ondubbelzinnig geïdentificeerd.\n☐ | SKU, eenheid, verpakking en barcode zijn gecontroleerd.\n☐ | Kritieke documenten zijn geldig en aan het juiste product gekoppeld.\n☐ | Batch/lot, houdbaarheid en traceerbaarheid zijn ingericht waar nodig.\n☐ | Land-, klant- en verzendbeperkingen zijn vastgelegd.\n☐ | Tweede controle en vrijgavebesluit zijn aantoonbaar.\nUitzondering | Verplichte reactie\nKritisch document ontbreekt | Geen inkoop, verkoop of verzending; product blijft geblokkeerd.\nSample | Vereenvoudigde commerciële inrichting mag, maar identiteit, traceerbaarheid en compliance blijven verplicht.\nNieuwe markt/onduidelijke classificatie | Schriftelijk laten bevestigen door bevoegde specialist, fabrikant of passende deskundige.\nWijziging verpakkingseenheid | Impact op open voorraad, orders, barcode en prijs eerst controleren.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Productvrijgavecheck, vaste beslisstatus en beheer van documentverval toegevoegd; jargon en dubbels verwijderd. | Inco-Source – Operations | Jorn / Hidde\n\nAanvulling vragenlijst Jorn (2026-08-18)\nMinimaal verplichte productgegevens: HS-code, oorsprong, gewicht, fabrikantreferentie, productomschrijving, prijs en verpakkingsgrootte.",
     "sourceSections": [
       {
         "title": "Doel",
@@ -914,7 +947,16 @@
           "blokkades door ontbrekende documentatie",
           "correcties op stamgegevens."
         ]
+      },
+      {
+        "title": "Aanvulling vragenlijst Jorn (2026-08-18)",
+        "content": [
+          "Minimaal verplichte productgegevens: HS-code, oorsprong, gewicht, fabrikantreferentie, productomschrijving, prijs en verpakkingsgrootte."
+        ]
       }
+    ],
+    "supplementalSources": [
+      "Kopie van Inco-Source Vragenlijst (003).xlsx — ingevuld door Jorn, verwerkt 2026-08-18"
     ]
   },
   {
@@ -944,6 +986,7 @@
     ],
     "steps": [
       "Leg behoefte vast - Beschrijf wat wordt afgenomen, verwacht volume, financiële omvang en waarom de leverancier nodig is. Output: Duidelijke businessreden en scope.",
+      "Selecteer voorkeursroute - Koop bij voorkeur rechtstreeks bij de fabrikant, met als gewenste voorwaarden 30 dagen betaling en franco levering. Gebruik alleen een medische groothandel als alternatief wanneer de website merken toont die Inco-Source al inkoopt; bewaar het controlebewijs. Output: Leveranciersroute en afwijkingen zijn aantoonbaar gekozen.",
       "Verifieer partij - Controleer bedrijfsgegevens, contactpersonen en bankrekening via betrouwbare bron en onafhankelijk contactkanaal. Output: Identiteit en betaalgegevens bevestigd.",
       "Verzamel voorwaarden - Leg prijzen, betaal-/levervoorwaarden, lead time, MOQ, verpakking, documentatie en logistieke aansluiting vast. Output: Vergelijkbare leverancierseisen beschikbaar.",
       "Classificeer risico - Classificeer normaal of kritisch op klantimpact, vervangbaarheid, compliance en financiële afhankelijkheid. Output: Risicoklasse met motivatie.",
@@ -955,7 +998,8 @@
       "Spoedinkoop: Alleen na vastgelegde risicoafweging en tijdelijke voorwaarden; kritieke controles niet overslaan.",
       "Bankwijziging per e-mail: Nooit direct verwerken; buiten de ontvangen e-mail om verifiëren.",
       "Terugkerende afwijking: Status voorwaardelijk of geblokkeerd zetten en actie met deadline eisen.",
-      "Fraude/compliance-indicatie: Nieuwe bestellingen onmiddellijk blokkeren en samen beoordelen."
+      "Fraude/compliance-indicatie: Nieuwe bestellingen onmiddellijk blokkeren en samen beoordelen.",
+      "Afwijking voorkeursroute: Een afwijking van rechtstreekse fabrikant, 30 dagen betaling of franco levering wordt vóór bestelling bewust beoordeeld en vastgelegd."
     ],
     "escalations": [
       "Normaal: Vervangbaar, beperkte impact en geen kritieke compliance-afhankelijkheid.",
@@ -974,7 +1018,8 @@
       "Product- en compliancevereisten zijn beoordeeld.",
       "Prijs, voorwaarden, MOQ, lead time en verpakking zijn vastgelegd.",
       "Risicoklasse en leveranciersstatus zijn goedgekeurd.",
-      "Extra controle van de eerste levering is gepland of uitgevoerd."
+      "Extra controle van de eerste levering is gepland of uitgevoerd.",
+      "Bij gebruik van een groothandel is vastgelegd dat het een medische groothandel is en dat de website reeds ingekochte merken toont."
     ],
     "relatedSops": [
       "SOP-002",
@@ -983,9 +1028,9 @@
       "SOP-014"
     ],
     "status": "Actief",
-    "version": "3.0",
-    "lastUpdated": "2026-07-21",
-    "reviewDate": "2027-07-21",
+    "version": "3.1",
+    "lastUpdated": "2026-08-18",
+    "reviewDate": "2027-08-18",
     "keywords": [
       "-beheer",
       "21-07-2026",
@@ -1286,10 +1331,15 @@
       "wordt",
       "zetten",
       "zijn",
-      "zonder"
+      "zonder",
+      "fabrikant",
+      "30 dagen",
+      "franco",
+      "medische groothandel",
+      "merkenbewijs"
     ],
     "sourceFile": "SOP-003 Leveranciersselectie en -beheer.docx",
-    "fullText": "STANDARD OPERATING PROCEDURE\nLeveranciersselectie en -beheer\nSOP-003 • Inco-Source\nHoofdregel Deze SOP start bij nieuwe leverancier, bankwijziging, grote handelsmogelijkheid, kritieke dienst of terugkerende prestatieproblemen. De uitvoering eindigt pas wanneer leverancier heeft een vastgelegde status, voorwaarden, evaluatiemoment en eventuele acties.\nDoel, startpunt en scope\nDoel: Borgt dat Inco-Source alleen inkoopt bij leveranciers die commercieel, operationeel en qua product/compliance beheerst zijn.\nStartpunt: Nieuwe leverancier, bankwijziging, grote handelsmogelijkheid, kritieke dienst of terugkerende prestatieproblemen. Eindpunt: Leverancier heeft een vastgelegde status, voorwaarden, evaluatiemoment en eventuele acties.\nScope: Productleveranciers en kritieke dienstverleners; specifieke 3PL- en vervoerderssturing valt aanvullend onder SOP-014.\nVereisten\nDefinities en afkortingen\nProcesstappen\nBehoefte → Identiteit → Risico → Beoordeling → Besluit → Eerste levering → Herreview\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Leveranciersregister, verificatiebewijs, offerte/voorwaarden, relevante productdocumenten, risicoklasse en evaluatienotitie.\nKPI-sturing: Actieve kritieke leveranciers tijdig beoordeeld; afwijkingen per leverancier; first-time-right eerste levering; open leveranciersacties.\nGerelateerde SOP’s: SOP-002, SOP-004, SOP-013 en SOP-014.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Inkoop & leveranciers\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nBehoefte | De gewenste levering/dienst, volumes, kwaliteit en kritieke eisen zijn beschreven.\nIdentiteit | Bedrijfs-, contact-, registratie- en bankgegevens kunnen onafhankelijk worden gecontroleerd.\nRisicobeeld | Product-, land-, compliance-, continuïteits- en financieel risico zijn beoordeelbaar.\nToetsing | Acceptatiecriteria, testorder of referentiecontrole zijn vooraf bepaald waar relevant.\nBegrip | Betekenis\nDue diligence | Voorafgaande controle van identiteit, betrouwbaarheid, risico’s en geschiktheid.\nKritieke leverancier | Leverancier waarvan uitval of fouten grote klant-, voorraad-, financiële of compliance-impact hebben.\nSLA | Service Level Agreement: vastgelegde prestatienormen en verantwoordelijkheden.\nVoorwaardelijk | Tijdelijke goedkeuring met expliciete beperking, eigenaar en einddatum.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Leg behoefte vast | Beschrijf wat wordt afgenomen, verwacht volume, financiële omvang en waarom de leverancier nodig is. | Duidelijke businessreden en scope.\n2 | Uitvoerder | Verifieer partij | Controleer bedrijfsgegevens, contactpersonen en bankrekening via betrouwbare bron en onafhankelijk contactkanaal. | Identiteit en betaalgegevens bevestigd.\n3 | Uitvoerder | Verzamel voorwaarden | Leg prijzen, betaal-/levervoorwaarden, lead time, MOQ, verpakking, documentatie en logistieke aansluiting vast. | Vergelijkbare leverancierseisen beschikbaar.\n4 | Jorn/Hidde | Classificeer risico | Classificeer normaal of kritisch op klantimpact, vervangbaarheid, compliance en financiële afhankelijkheid. | Risicoklasse met motivatie.\n5 | Jorn/Hidde | Besluit en voorwaarden | Kies goedgekeurd, voorwaardelijk of geblokkeerd; kritieke leverancier wordt samen goedgekeurd. | Status, voorwaarden en acties vastgelegd.\n6 | Uitvoerder | Controleer eerste levering | Controleer de eerste order en ontvangst extra op artikel, aantal, documenten, schade en communicatie. | Eerste prestatie aantoonbaar beoordeeld.\n7 | Proceseigenaar | Herbeoordeel gericht | Beoordeel actieve kritieke leveranciers jaarlijks; overige leveranciers bij afwijking of vóór een grote nieuwe afname. | Actuele status zonder onnodige reviews.\nBesluit | Wanneer toepassen\nNormaal | Vervangbaar, beperkte impact en geen kritieke compliance-afhankelijkheid.\nKritisch | Hoge klant-/compliance-impact, lastig vervangbaar of grote financiële afhankelijkheid.\nBlokkeren | Fraude-indicatie, kritiek documentgebrek of onbeheerst productrisico.\nCheck | Controlepunt\n☐ | Bedrijfsidentiteit en contactpersoon zijn geverifieerd.\n☐ | Bankgegevens zijn onafhankelijk bevestigd.\n☐ | Product- en compliancevereisten zijn beoordeeld.\n☐ | Prijs, voorwaarden, MOQ, lead time en verpakking zijn vastgelegd.\n☐ | Risicoklasse en leveranciersstatus zijn goedgekeurd.\n☐ | Extra controle van de eerste levering is gepland of uitgevoerd.\nUitzondering | Verplichte reactie\nSpoedinkoop | Alleen na vastgelegde risicoafweging en tijdelijke voorwaarden; kritieke controles niet overslaan.\nBankwijziging per e-mail | Nooit direct verwerken; buiten de ontvangen e-mail om verifiëren.\nTerugkerende afwijking | Status voorwaardelijk of geblokkeerd zetten en actie met deadline eisen.\nFraude/compliance-indicatie | Nieuwe bestellingen onmiddellijk blokkeren en samen beoordelen.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Risicogestuurde leverancierscheck, bankverificatie en compacte status-/reviewcyclus toegevoegd. | Inco-Source – Operations | Jorn / Hidde",
+    "fullText": "STANDARD OPERATING PROCEDURE\nLeveranciersselectie en -beheer\nSOP-003 • Inco-Source\nHoofdregel Deze SOP start bij nieuwe leverancier, bankwijziging, grote handelsmogelijkheid, kritieke dienst of terugkerende prestatieproblemen. De uitvoering eindigt pas wanneer leverancier heeft een vastgelegde status, voorwaarden, evaluatiemoment en eventuele acties.\nDoel, startpunt en scope\nDoel: Borgt dat Inco-Source alleen inkoopt bij leveranciers die commercieel, operationeel en qua product/compliance beheerst zijn.\nStartpunt: Nieuwe leverancier, bankwijziging, grote handelsmogelijkheid, kritieke dienst of terugkerende prestatieproblemen. Eindpunt: Leverancier heeft een vastgelegde status, voorwaarden, evaluatiemoment en eventuele acties.\nScope: Productleveranciers en kritieke dienstverleners; specifieke 3PL- en vervoerderssturing valt aanvullend onder SOP-014.\nVereisten\nDefinities en afkortingen\nProcesstappen\nBehoefte → Identiteit → Risico → Beoordeling → Besluit → Eerste levering → Herreview\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Leveranciersregister, verificatiebewijs, offerte/voorwaarden, relevante productdocumenten, risicoklasse en evaluatienotitie.\nKPI-sturing: Actieve kritieke leveranciers tijdig beoordeeld; afwijkingen per leverancier; first-time-right eerste levering; open leveranciersacties.\nGerelateerde SOP’s: SOP-002, SOP-004, SOP-013 en SOP-014.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Inkoop & leveranciers\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nBehoefte | De gewenste levering/dienst, volumes, kwaliteit en kritieke eisen zijn beschreven.\nIdentiteit | Bedrijfs-, contact-, registratie- en bankgegevens kunnen onafhankelijk worden gecontroleerd.\nRisicobeeld | Product-, land-, compliance-, continuïteits- en financieel risico zijn beoordeelbaar.\nToetsing | Acceptatiecriteria, testorder of referentiecontrole zijn vooraf bepaald waar relevant.\nBegrip | Betekenis\nDue diligence | Voorafgaande controle van identiteit, betrouwbaarheid, risico’s en geschiktheid.\nKritieke leverancier | Leverancier waarvan uitval of fouten grote klant-, voorraad-, financiële of compliance-impact hebben.\nSLA | Service Level Agreement: vastgelegde prestatienormen en verantwoordelijkheden.\nVoorwaardelijk | Tijdelijke goedkeuring met expliciete beperking, eigenaar en einddatum.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Uitvoerder | Leg behoefte vast | Beschrijf wat wordt afgenomen, verwacht volume, financiële omvang en waarom de leverancier nodig is. | Duidelijke businessreden en scope.\n2 | Uitvoerder | Verifieer partij | Controleer bedrijfsgegevens, contactpersonen en bankrekening via betrouwbare bron en onafhankelijk contactkanaal. | Identiteit en betaalgegevens bevestigd.\n3 | Uitvoerder | Verzamel voorwaarden | Leg prijzen, betaal-/levervoorwaarden, lead time, MOQ, verpakking, documentatie en logistieke aansluiting vast. | Vergelijkbare leverancierseisen beschikbaar.\n4 | Jorn/Hidde | Classificeer risico | Classificeer normaal of kritisch op klantimpact, vervangbaarheid, compliance en financiële afhankelijkheid. | Risicoklasse met motivatie.\n5 | Jorn/Hidde | Besluit en voorwaarden | Kies goedgekeurd, voorwaardelijk of geblokkeerd; kritieke leverancier wordt samen goedgekeurd. | Status, voorwaarden en acties vastgelegd.\n6 | Uitvoerder | Controleer eerste levering | Controleer de eerste order en ontvangst extra op artikel, aantal, documenten, schade en communicatie. | Eerste prestatie aantoonbaar beoordeeld.\n7 | Proceseigenaar | Herbeoordeel gericht | Beoordeel actieve kritieke leveranciers jaarlijks; overige leveranciers bij afwijking of vóór een grote nieuwe afname. | Actuele status zonder onnodige reviews.\nBesluit | Wanneer toepassen\nNormaal | Vervangbaar, beperkte impact en geen kritieke compliance-afhankelijkheid.\nKritisch | Hoge klant-/compliance-impact, lastig vervangbaar of grote financiële afhankelijkheid.\nBlokkeren | Fraude-indicatie, kritiek documentgebrek of onbeheerst productrisico.\nCheck | Controlepunt\n☐ | Bedrijfsidentiteit en contactpersoon zijn geverifieerd.\n☐ | Bankgegevens zijn onafhankelijk bevestigd.\n☐ | Product- en compliancevereisten zijn beoordeeld.\n☐ | Prijs, voorwaarden, MOQ, lead time en verpakking zijn vastgelegd.\n☐ | Risicoklasse en leveranciersstatus zijn goedgekeurd.\n☐ | Extra controle van de eerste levering is gepland of uitgevoerd.\nUitzondering | Verplichte reactie\nSpoedinkoop | Alleen na vastgelegde risicoafweging en tijdelijke voorwaarden; kritieke controles niet overslaan.\nBankwijziging per e-mail | Nooit direct verwerken; buiten de ontvangen e-mail om verifiëren.\nTerugkerende afwijking | Status voorwaardelijk of geblokkeerd zetten en actie met deadline eisen.\nFraude/compliance-indicatie | Nieuwe bestellingen onmiddellijk blokkeren en samen beoordelen.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Risicogestuurde leverancierscheck, bankverificatie en compacte status-/reviewcyclus toegevoegd. | Inco-Source – Operations | Jorn / Hidde\n\nAanvulling vragenlijst Jorn (2026-08-18)\nVoorkeur: rechtstreeks inkopen bij de fabrikant, met 30 dagen betaling en franco levering.\nAlternatief: uitsluitend een medische groothandel waarvan de website merken toont die Inco-Source al inkoopt; controlebewijs bewaren.",
     "sourceSections": [
       {
         "title": "Doel",
@@ -1381,7 +1431,17 @@
           "first-time-right eerste levering",
           "open leveranciersacties."
         ]
+      },
+      {
+        "title": "Aanvulling vragenlijst Jorn (2026-08-18)",
+        "content": [
+          "Voorkeur: rechtstreeks inkopen bij de fabrikant, met 30 dagen betaling en franco levering.",
+          "Alternatief: uitsluitend een medische groothandel waarvan de website merken toont die Inco-Source al inkoopt; controlebewijs bewaren."
+        ]
       }
+    ],
+    "supplementalSources": [
+      "Kopie van Inco-Source Vragenlijst (003).xlsx — ingevuld door Jorn, verwerkt 2026-08-18"
     ]
   },
   {
@@ -3368,13 +3428,17 @@
       "Orderverantw. - verantwoordelijk voor: alloceer en kies locatie",
       "Orderverantw. - verantwoordelijk voor: geef vrij en bevestig"
     ],
-    "systems": [],
+    "systems": [
+      "Odoo voor orderregistratie en facturatie"
+    ],
     "documents": [
-      "Klantorder, prijs-/leverafspraak, voorraad-/backorderbevestiging, tweede controle, locatiekeuze, vrijgave-instructie en klantbevestiging."
+      "Klantorder, prijs-/leverafspraak, voorraad-/backorderbevestiging, tweede controle, locatiekeuze, vrijgave-instructie en klantbevestiging.",
+      "Vastgelegde commerciële uitzondering waar van toepassing."
     ],
     "steps": [
-      "Registreer order - Leg klant, referentie, factuur-/afleveradres, contactpersoon, ordertype en gewenste datum/venster vast. Output: Unieke order met complete klantgegevens.",
+      "Registreer order - Leg de order in Odoo vast met klant, referentie, factuur-/afleveradres, contactpersoon, ordertype en gewenste datum/venster. Output: Unieke order met complete klantgegevens.",
       "Controleer orderregels - Controleer SKU, aantal, eenheid, prijs, betaal-/levervoorwaarden, incoterm en speciale instructies. Output: Geen onduidelijke commerciële gegevens.",
+      "Controleer commerciële vrijgavegrenzen - EXW vereist minimaal € 5.000 orderwaarde. DAP is uitsluitend een vastgelegde uitzondering vanaf € 10.000. Daarnaast zijn minimaal 9% nettomarge én € 500 nettowinst per order vereist. Voor overige Incoterms en zolang de definitie van nettomarge niet formeel is vastgelegd, is een tweede controle verplicht. Output: Order vrij, op hold of klaar voor heronderhandeling.",
       "Controleer beschikbaarheid - Controleer vrijgegeven voorraad, allocaties, open inbound en eventuele backorder; maak geen gebruik van geblokkeerde voorraad. Output: Bevestigde levermogelijkheid of zichtbare backorder.",
       "Controleer compliance en marge - Controleer product-, klant-, land- en exportbeperkingen, kredietrisico en uitzonderlijke kosten vóór toezegging. Output: Order vrij, op hold of heronderhandeling nodig.",
       "Controleer uitzondering - Controleer nieuwe klant, afwijkende prijs, uitzonderlijke kosten of compliance-/kredietrisico. Output: Tweede akkoord waar vereist.",
@@ -3385,10 +3449,12 @@
       "Sample: Als order, voorraadmutatie en zending registreren; alleen op klantverzoek en waar mogelijk via leverancier laten meelopen.",
       "Spoed: Prioriteit verhogen maar product-, adres-, voorraad- en compliancecontrole niet overslaan.",
       "Onvoldoende voorraad: Backorder/alternatieve datum bevestigen; geen ander artikel of batch zonder klantakkoord.",
-      "Wijziging na vrijgave: Order terug naar ‘Gecontroleerd’, uitvoerder informeren en vrijgavecheck opnieuw uitvoeren."
+      "Wijziging na vrijgave: Order terug naar ‘Gecontroleerd’, uitvoerder informeren en vrijgavecheck opnieuw uitvoeren.",
+      "Commerciële ondergrens: Een order onder de toepasselijke minimumwaarde, 9% nettomarge of € 500 nettowinst wordt niet vrijgegeven; eerst heronderhandelen of aantoonbaar als uitzondering goedkeuren.",
+      "Overige Incoterms: Zet de order op hold voor een bewuste tweede controle totdat hiervoor vaste grenzen zijn bevestigd."
     ],
     "escalations": [
-      "Vrijgeven: Klant, product, prijs, voorraad, voorwaarden, uitvoering en compliance zijn duidelijk.",
+      "Vrijgeven: Klant, product, prijs, voorraad, voorwaarden, uitvoering en compliance zijn duidelijk én de toepasselijke orderwaarde, 9% nettomarge en € 500 nettowinst zijn behaald.",
       "Hold: Kritieke informatie, voorraadzekerheid, documentatie of goedkeuring ontbreekt.",
       "Afwijzen/heronderhandelen: Marge, kredietrisico, betaalconditie of logistieke uitvoering is niet verantwoord."
     ],
@@ -3406,7 +3472,8 @@
       "Compliance-, land-, export- en kredietbeperkingen zijn beoordeeld.",
       "Batch/houdbaarheid en uitvoeringslocatie zijn passend.",
       "Backorder of leverdatum is zichtbaar vastgelegd.",
-      "Complete uitvoeringsinstructie en klantbevestiging zijn verzonden."
+      "Complete uitvoeringsinstructie en klantbevestiging zijn verzonden.",
+      "Alleen de minimumorderwaarde controleren; zowel de 9% nettomarge als € 500 nettowinst per order zijn vereist."
     ],
     "relatedSops": [
       "SOP-002",
@@ -3416,9 +3483,9 @@
       "SOP-012"
     ],
     "status": "Actief",
-    "version": "3.0",
-    "lastUpdated": "2026-07-21",
-    "reviewDate": "2027-07-21",
+    "version": "3.1",
+    "lastUpdated": "2026-08-18",
+    "reviewDate": "2027-08-18",
     "keywords": [
       "21-07-2026",
       "21-07-2027",
@@ -3722,10 +3789,17 @@
       "zichtbaar",
       "zichtbare",
       "zijn",
-      "zonder"
+      "zonder",
+      "odoo",
+      "exw",
+      "dap",
+      "5000",
+      "10000",
+      "9% nettomarge",
+      "500 nettowinst"
     ],
     "sourceFile": "SOP-009 Klantorder verwerken.docx",
-    "fullText": "STANDARD OPERATING PROCEDURE\nKlantorder verwerken\nSOP-009 • Inco-Source\nHoofdregel Deze SOP start bij een klantorder, schriftelijke aanvraag, kansgestuurde verkoop, herhaalorder, spoedorder of sampleverzoek. De uitvoering eindigt pas wanneer order is bevestigd, voorraad/verwachting is vastgelegd en een complete uitvoeringsinstructie is vrijgegeven aan SOP-010.\nDoel, startpunt en scope\nDoel: Beheert iedere klantorder van ontvangst tot complete en aantoonbare vrijgave aan de uitvoerende locatie.\nStartpunt: Een klantorder, schriftelijke aanvraag, kansgestuurde verkoop, herhaalorder, spoedorder of sampleverzoek. Eindpunt: Order is bevestigd, voorraad/verwachting is vastgelegd en een complete uitvoeringsinstructie is vrijgegeven aan SOP-010.\nScope: Binnen- en buitenlandse orders, samples, spoedorders, backorders en klantkritieke zendingen.\nVereisten\nDefinities en afkortingen\nProcesstappen\nOrder → Gegevens → Prijs/voorwaarden → Voorraad → Compliance → Locatie → Vrijgave → Bevestiging\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Klantorder, prijs-/leverafspraak, voorraad-/backorderbevestiging, tweede controle, locatiekeuze, vrijgave-instructie en klantbevestiging.\nKPI-sturing: Orders in één keer correct; tijd orderontvangst tot vrijgave; backorders; wijzigingen na vrijgave; orderfouten door ontbrekende gegevens.\nGerelateerde SOP’s: SOP-002, SOP-004, SOP-007, SOP-010 en SOP-012.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Order & klant\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nOrderbron | Een schriftelijke klantorder of intern vastgelegde verkoopafspraak is beschikbaar.\nVrijgave | Klant, product en eventuele krediet-/compliancevoorwaarden zijn goedgekeurd.\nCommercieel | Artikel, aantal, prijs, valuta, leverconditie en betaalafspraak zijn bevestigd.\nLeverbaarheid | Beschikbare voorraad, reservering/backorder, locatie en haalbare leverdatum zijn bekend.\nBegrip | Betekenis\nKlantorder | Vastgelegde verkoopopdracht met klant, artikelen, hoeveelheden en leverafspraak.\nAllocatie | Reservering van beschikbare voorraad voor een specifieke order of klant.\nBackorder | Bevestigde orderhoeveelheid die nog niet uit beschikbare voorraad kan worden geleverd.\nCredit hold | Tijdelijke blokkering van een order wegens krediet- of betaalvoorwaarden.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Orderverantw. | Registreer order | Leg klant, referentie, factuur-/afleveradres, contactpersoon, ordertype en gewenste datum/venster vast. | Unieke order met complete klantgegevens.\n2 | Orderverantw. | Controleer orderregels | Controleer SKU, aantal, eenheid, prijs, betaal-/levervoorwaarden, incoterm en speciale instructies. | Geen onduidelijke commerciële gegevens.\n3 | Orderverantw. | Controleer beschikbaarheid | Controleer vrijgegeven voorraad, allocaties, open inbound en eventuele backorder; maak geen gebruik van geblokkeerde voorraad. | Bevestigde levermogelijkheid of zichtbare backorder.\n4 | Orderverantw. | Controleer compliance en marge | Controleer product-, klant-, land- en exportbeperkingen, kredietrisico en uitzonderlijke kosten vóór toezegging. | Order vrij, op hold of heronderhandeling nodig.\n5 | Tweede controle | Controleer uitzondering | Controleer nieuwe klant, afwijkende prijs, uitzonderlijke kosten of compliance-/kredietrisico. | Tweede akkoord waar vereist.\n6 | Orderverantw. | Alloceer en kies locatie | Alloceer geschikte batch/houdbaarheid en kies uitvoering via SOP-007; leg backorderdatum zichtbaar vast. | Voorraad en uitvoeringsroute bevestigd.\n7 | Orderverantw. | Geef vrij en bevestig | Voer vrijgavecheck uit, stuur complete instructie naar SOP-010 en bevestig wat, wanneer en onder welke voorwaarden wordt geleverd. | Status ‘Vrijgegeven’ en klantbevestiging.\nBesluit | Wanneer toepassen\nVrijgeven | Klant, product, prijs, voorraad, voorwaarden, uitvoering en compliance zijn duidelijk.\nHold | Kritieke informatie, voorraadzekerheid, documentatie of goedkeuring ontbreekt.\nAfwijzen/heronderhandelen | Marge, kredietrisico, betaalconditie of logistieke uitvoering is niet verantwoord.\nCheck | Controlepunt\n☐ | Klant-, factuur- en aflevergegevens zijn compleet.\n☐ | SKU, eenheid, aantal, prijs en voorwaarden zijn gecontroleerd.\n☐ | Alleen vrijgegeven en niet-gealloceerde voorraad is gebruikt.\n☐ | Compliance-, land-, export- en kredietbeperkingen zijn beoordeeld.\n☐ | Batch/houdbaarheid en uitvoeringslocatie zijn passend.\n☐ | Backorder of leverdatum is zichtbaar vastgelegd.\n☐ | Complete uitvoeringsinstructie en klantbevestiging zijn verzonden.\nUitzondering | Verplichte reactie\nSample | Als order, voorraadmutatie en zending registreren; alleen op klantverzoek en waar mogelijk via leverancier laten meelopen.\nSpoed | Prioriteit verhogen maar product-, adres-, voorraad- en compliancecontrole niet overslaan.\nOnvoldoende voorraad | Backorder/alternatieve datum bevestigen; geen ander artikel of batch zonder klantakkoord.\nWijziging na vrijgave | Order terug naar ‘Gecontroleerd’, uitvoerder informeren en vrijgavecheck opnieuw uitvoeren.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Vaste orderstatus, vrijgavecheck, voorraadonderscheid en overdracht naar uitgaande levering toegevoegd. | Inco-Source – Operations | Jorn / Hidde",
+    "fullText": "STANDARD OPERATING PROCEDURE\nKlantorder verwerken\nSOP-009 • Inco-Source\nHoofdregel Deze SOP start bij een klantorder, schriftelijke aanvraag, kansgestuurde verkoop, herhaalorder, spoedorder of sampleverzoek. De uitvoering eindigt pas wanneer order is bevestigd, voorraad/verwachting is vastgelegd en een complete uitvoeringsinstructie is vrijgegeven aan SOP-010.\nDoel, startpunt en scope\nDoel: Beheert iedere klantorder van ontvangst tot complete en aantoonbare vrijgave aan de uitvoerende locatie.\nStartpunt: Een klantorder, schriftelijke aanvraag, kansgestuurde verkoop, herhaalorder, spoedorder of sampleverzoek. Eindpunt: Order is bevestigd, voorraad/verwachting is vastgelegd en een complete uitvoeringsinstructie is vrijgegeven aan SOP-010.\nScope: Binnen- en buitenlandse orders, samples, spoedorders, backorders en klantkritieke zendingen.\nVereisten\nDefinities en afkortingen\nProcesstappen\nOrder → Gegevens → Prijs/voorwaarden → Voorraad → Compliance → Locatie → Vrijgave → Bevestiging\nBelangrijkste beslisregels\nVerplichte controle\nUitzonderingen en directe acties\nDossier, KPI’s en samenhang\nVerplicht dossier: Klantorder, prijs-/leverafspraak, voorraad-/backorderbevestiging, tweede controle, locatiekeuze, vrijgave-instructie en klantbevestiging.\nKPI-sturing: Orders in één keer correct; tijd orderontvangst tot vrijgave; backorders; wijzigingen na vrijgave; orderfouten door ontbrekende gegevens.\nGerelateerde SOP’s: SOP-002, SOP-004, SOP-007, SOP-010 en SOP-012.\nBeheer en revisie\nBeheer: Jorn en Hidde zijn gezamenlijk proceseigenaar. Deze SOP wordt minimaal jaarlijks en direct na een belangrijke proces-, partner-, systeem- of wettelijke wijziging beoordeeld. Alleen de actuele, goedgekeurde versie in de Operations Hub is geldig.\nStatus | Actief | Versie | 1.0\nEigenaar | Jorn / Hidde | Categorie | Order & klant\nIngangsdatum | 21-07-2026 | Beoordeling | 21-07-2027\nVereiste | Minimale invulling\nOrderbron | Een schriftelijke klantorder of intern vastgelegde verkoopafspraak is beschikbaar.\nVrijgave | Klant, product en eventuele krediet-/compliancevoorwaarden zijn goedgekeurd.\nCommercieel | Artikel, aantal, prijs, valuta, leverconditie en betaalafspraak zijn bevestigd.\nLeverbaarheid | Beschikbare voorraad, reservering/backorder, locatie en haalbare leverdatum zijn bekend.\nBegrip | Betekenis\nKlantorder | Vastgelegde verkoopopdracht met klant, artikelen, hoeveelheden en leverafspraak.\nAllocatie | Reservering van beschikbare voorraad voor een specifieke order of klant.\nBackorder | Bevestigde orderhoeveelheid die nog niet uit beschikbare voorraad kan worden geleverd.\nCredit hold | Tijdelijke blokkering van een order wegens krediet- of betaalvoorwaarden.\nNr. | Eigenaar | Stap | Uitvoering | Vrijgave / output\n1 | Orderverantw. | Registreer order | Leg klant, referentie, factuur-/afleveradres, contactpersoon, ordertype en gewenste datum/venster vast. | Unieke order met complete klantgegevens.\n2 | Orderverantw. | Controleer orderregels | Controleer SKU, aantal, eenheid, prijs, betaal-/levervoorwaarden, incoterm en speciale instructies. | Geen onduidelijke commerciële gegevens.\n3 | Orderverantw. | Controleer beschikbaarheid | Controleer vrijgegeven voorraad, allocaties, open inbound en eventuele backorder; maak geen gebruik van geblokkeerde voorraad. | Bevestigde levermogelijkheid of zichtbare backorder.\n4 | Orderverantw. | Controleer compliance en marge | Controleer product-, klant-, land- en exportbeperkingen, kredietrisico en uitzonderlijke kosten vóór toezegging. | Order vrij, op hold of heronderhandeling nodig.\n5 | Tweede controle | Controleer uitzondering | Controleer nieuwe klant, afwijkende prijs, uitzonderlijke kosten of compliance-/kredietrisico. | Tweede akkoord waar vereist.\n6 | Orderverantw. | Alloceer en kies locatie | Alloceer geschikte batch/houdbaarheid en kies uitvoering via SOP-007; leg backorderdatum zichtbaar vast. | Voorraad en uitvoeringsroute bevestigd.\n7 | Orderverantw. | Geef vrij en bevestig | Voer vrijgavecheck uit, stuur complete instructie naar SOP-010 en bevestig wat, wanneer en onder welke voorwaarden wordt geleverd. | Status ‘Vrijgegeven’ en klantbevestiging.\nBesluit | Wanneer toepassen\nVrijgeven | Klant, product, prijs, voorraad, voorwaarden, uitvoering en compliance zijn duidelijk.\nHold | Kritieke informatie, voorraadzekerheid, documentatie of goedkeuring ontbreekt.\nAfwijzen/heronderhandelen | Marge, kredietrisico, betaalconditie of logistieke uitvoering is niet verantwoord.\nCheck | Controlepunt\n☐ | Klant-, factuur- en aflevergegevens zijn compleet.\n☐ | SKU, eenheid, aantal, prijs en voorwaarden zijn gecontroleerd.\n☐ | Alleen vrijgegeven en niet-gealloceerde voorraad is gebruikt.\n☐ | Compliance-, land-, export- en kredietbeperkingen zijn beoordeeld.\n☐ | Batch/houdbaarheid en uitvoeringslocatie zijn passend.\n☐ | Backorder of leverdatum is zichtbaar vastgelegd.\n☐ | Complete uitvoeringsinstructie en klantbevestiging zijn verzonden.\nUitzondering | Verplichte reactie\nSample | Als order, voorraadmutatie en zending registreren; alleen op klantverzoek en waar mogelijk via leverancier laten meelopen.\nSpoed | Prioriteit verhogen maar product-, adres-, voorraad- en compliancecontrole niet overslaan.\nOnvoldoende voorraad | Backorder/alternatieve datum bevestigen; geen ander artikel of batch zonder klantakkoord.\nWijziging na vrijgave | Order terug naar ‘Gecontroleerd’, uitvoerder informeren en vrijgavecheck opnieuw uitvoeren.\nVersie | Datum | Wijziging | Opsteller | Goedkeuring\n3.0 | 21-07-2026 | Vaste orderstatus, vrijgavecheck, voorraadonderscheid en overdracht naar uitgaande levering toegevoegd. | Inco-Source – Operations | Jorn / Hidde\n\nAanvulling vragenlijst Jorn (2026-08-18)\nOdoo is het bevestigde systeem voor orders en facturen.\nEXW: minimaal € 5.000 orderwaarde.\nDAP: uitsluitend als vastgelegde uitzondering vanaf € 10.000 orderwaarde.\nFinancieel: minimaal 9% nettomarge én € 500 nettowinst per order.\nOpen punt: definitie/kostenopbouw van nettomarge en grenzen voor overige Incoterms moeten nog formeel worden bevestigd.",
     "sourceSections": [
       {
         "title": "Doel",
@@ -3819,7 +3893,20 @@
           "wijzigingen na vrijgave",
           "orderfouten door ontbrekende gegevens."
         ]
+      },
+      {
+        "title": "Aanvulling vragenlijst Jorn (2026-08-18)",
+        "content": [
+          "Odoo is het bevestigde systeem voor orders en facturen.",
+          "EXW: minimaal € 5.000 orderwaarde.",
+          "DAP: uitsluitend als vastgelegde uitzondering vanaf € 10.000 orderwaarde.",
+          "Financieel: minimaal 9% nettomarge én € 500 nettowinst per order.",
+          "Open punt: definitie/kostenopbouw van nettomarge en grenzen voor overige Incoterms moeten nog formeel worden bevestigd."
+        ]
       }
+    ],
+    "supplementalSources": [
+      "Kopie van Inco-Source Vragenlijst (003).xlsx — ingevuld door Jorn, verwerkt 2026-08-18"
     ]
   },
   {
