@@ -21,6 +21,7 @@ outputs/
 docs/2026-08-18-jorn-input-en-voorstellen.md
 scripts/apply-jorn-knowledge.mjs
 .vercel/
+.netlify/
 
 # Lokale logs en systeeminstellingen.
 *.log
