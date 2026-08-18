@@ -4,6 +4,8 @@ import Link from 'next/link';
 import {useEffect, useRef, useState} from 'react';
 import {useOperations} from './operations-provider';
 import {formatDateTime} from '@/lib/shipments';
+import {MarkdownContent} from './markdown-content';
+import type {Partner, Shipment} from '@/types/operations';
 
 type Message = {
   id: string;
@@ -13,7 +15,23 @@ type Message = {
   mode?: 'ai' | 'preview';
   model?: string | null;
   usage?: TokenUsage | null;
+  proposals?: WriteProposal[];
 };
+
+type PartnerWriteProposal = {
+  id: string;
+  kind: 'create_partner';
+  title: string;
+  partner: Partner;
+};
+type ShipmentWriteProposal = {
+  id: string;
+  kind: 'create_shipment' | 'update_shipment';
+  title: string;
+  shipment: Shipment;
+  changes?: string[];
+};
+type WriteProposal = PartnerWriteProposal | ShipmentWriteProposal;
 
 type TokenUsage = {
   inputTokens: number;
@@ -45,16 +63,17 @@ type AnswerSource = {
 const initialMessage: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: 'Ik ben Inco Assist. Vraag naar een zending, relatie, voorraad, ordercheck, planning, SOP of de keuze intern versus 3PL. Ik gebruik alleen gegevens uit deze portal en laat mijn bronnen zien.',
+  content: 'Ik ben Inco Assist. Vraag naar een zending, relatie, voorraad, ordercheck, planning, SOP of de keuze intern versus 3PL. Je kunt me ook een klant of zending laten voorbereiden of een bestaande zending laten bijwerken. Iedere wijziging wacht op jouw bevestiging.',
 };
 
 export function CopilotChat() {
-  const {data, loadDemoData} = useOperations();
+  const {data, loadDemoData, savePartner, saveShipment} = useOperations();
   const suggestions = [
     `Hoe zit het met zending ${data.shipments[0]?.reference ?? 'IS-OUT-…'}?`,
     'Welke zendingen vragen nu aandacht?',
     'Geef mij een korte operationele dagstart.',
-    'Welke orderchecks staan op hold?',
+    'Ik wil een nieuwe klant aanmaken.',
+    'Ik wil een nieuwe zending aanmaken.',
     `Is ${data.shipments.find((item) => item.direction === 'Inbound')?.reference ?? 'de eerstvolgende inbound'} beter intern of via de 3PL?`,
   ];
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
@@ -63,6 +82,7 @@ export function CopilotChat() {
   const [error, setError] = useState('');
   const [apiStatus, setApiStatus] = useState<ApiStatus | null>(null);
   const [checkingApi, setCheckingApi] = useState(false);
+  const [appliedProposals, setAppliedProposals] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -128,7 +148,7 @@ export function CopilotChat() {
           },
         }),
       });
-      const result = await response.json() as {answer?: string; sources?: AnswerSource[]; mode?: 'ai' | 'preview'; model?: string | null; usage?: TokenUsage | null; error?: string};
+      const result = await response.json() as {answer?: string; sources?: AnswerSource[]; proposals?: WriteProposal[]; mode?: 'ai' | 'preview'; model?: string | null; usage?: TokenUsage | null; error?: string};
       if (!response.ok || !result.answer) throw new Error(result.error || 'Geen antwoord ontvangen.');
       setMessages((current) => [...current, {
         id: crypto.randomUUID(),
@@ -138,6 +158,7 @@ export function CopilotChat() {
         mode: result.mode,
         model: result.model,
         usage: result.usage,
+        proposals: result.proposals ?? [],
       }]);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Inco Assist is tijdelijk niet beschikbaar.');
@@ -146,11 +167,24 @@ export function CopilotChat() {
     }
   };
 
+  const applyProposal = (proposal: WriteProposal) => {
+    if (proposal.kind === 'create_partner') {
+      if (!proposal.partner.name.trim()) return;
+      const duplicate = data.partners.some((partner) => partner.name.trim().toLocaleLowerCase('nl-NL') === proposal.partner.name.trim().toLocaleLowerCase('nl-NL'));
+      if (!duplicate) savePartner(proposal.partner);
+    } else {
+      if (!proposal.shipment.reference.trim()) return;
+      const duplicate = data.shipments.some((shipment) => shipment.id !== proposal.shipment.id && shipment.reference.trim().toLocaleLowerCase('nl-NL') === proposal.shipment.reference.trim().toLocaleLowerCase('nl-NL'));
+      if (!duplicate) saveShipment(proposal.shipment);
+    }
+    setAppliedProposals((current) => current.includes(proposal.id) ? current : [...current, proposal.id]);
+  };
+
   return (
     <div className="grid min-h-[680px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft xl:grid-cols-[310px_1fr]">
       <aside className="border-b bg-navy p-6 text-white xl:border-b-0 xl:border-r xl:border-white/10">
-        <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-xl">✦</span><div><p className="text-xs font-bold uppercase tracking-widest text-blue-200">AI testversie</p><h2 className="font-bold">Inco Assist</h2></div></div>
-        <p className="mt-5 text-sm leading-6 text-blue-100">Read-only assistent over zendingen, relaties, planning, acties, orderchecks, voorraad, SOP’s en intern versus 3PL.</p>
+        <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-xs font-black tracking-wide">AI</span><div><p className="text-xs font-bold uppercase tracking-widest text-blue-200">AI testversie</p><h2 className="font-bold">Inco Assist</h2></div></div>
+        <p className="mt-5 text-sm leading-6 text-blue-100">Assistent over zendingen, relaties, planning, acties, orderchecks, voorraad, SOP’s en intern versus 3PL. Wijzigingen vragen altijd jouw bevestiging.</p>
 
         <div className="mt-6 rounded-2xl bg-white/10 p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-blue-200">Huidige context</p>
@@ -171,26 +205,54 @@ export function CopilotChat() {
         <div className="flex items-center justify-between border-b px-5 py-4 sm:px-7"><div><h1 className="font-bold text-navy">Vraag het aan Inco Assist</h1><p className="text-xs text-slate-500">Antwoorden bevatten bron, actualiteit en rekenaannames</p></div><button onClick={() => {setMessages([initialMessage]); setError('');}} className="rounded-lg border px-3 py-2 text-xs font-bold text-slate-600">Nieuw gesprek</button></div>
 
         <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto bg-slate-50/60 p-5 sm:p-7">
-          {messages.map((message) => <MessageBubble key={message.id} message={message} />)}
-          {loading && <div className="flex gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-white">✦</span><div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm text-slate-500 shadow-sm"><span className="animate-pulse">Bronnen raadplegen en antwoord samenstellen…</span></div></div>}
+          {messages.map((message) => <MessageBubble key={message.id} message={message} appliedProposals={appliedProposals} onApplyProposal={applyProposal} />)}
+          {loading && <div className="flex gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-[10px] font-black text-white">AI</span><div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm text-slate-500 shadow-sm"><span className="animate-pulse">Bronnen raadplegen en antwoord samenstellen…</span></div></div>}
           {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><b>Inco Assist niet beschikbaar.</b><p className="mt-1">{error}</p></div>}
         </div>
 
         <form onSubmit={(event) => {event.preventDefault(); void ask(input);}} className="border-t bg-white p-4 sm:p-6">
           <div className="flex items-end gap-3 rounded-2xl border bg-slate-50 p-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
-            <textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {if (event.key === 'Enter' && !event.shiftKey) {event.preventDefault(); void ask(input);}}} rows={2} placeholder="Bijvoorbeeld: welke zendingen zijn te laat en wat moet ik doen?" className="max-h-36 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none" />
+            <textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {if (event.key === 'Enter' && !event.shiftKey) {event.preventDefault(); void ask(input);}}} rows={2} placeholder="Vraag iets of laat een klant of zending voorbereiden…" className="max-h-36 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none" />
             <button disabled={loading || !input.trim()} className="rounded-xl bg-navy px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">Vraag</button>
           </div>
-          <p className="mt-2 text-center text-[11px] text-slate-400">Inco Assist mag in deze test niets wijzigen of versturen en vermeldt ontbrekende gegevens en aannames.</p>
+          <p className="mt-2 text-center text-[11px] text-slate-400">Inco Assist kan wijzigingen voorbereiden. Er wordt pas iets opgeslagen nadat jij dit expliciet bevestigt.</p>
         </form>
       </section>
     </div>
   );
 }
 
-function MessageBubble({message}: {message: Message}) {
+function MessageBubble({message, appliedProposals, onApplyProposal}: {message: Message; appliedProposals: string[]; onApplyProposal: (proposal: WriteProposal) => void}) {
   const user = message.role === 'user';
-  return <div className={`flex gap-3 ${user ? 'justify-end' : ''}`}>{!user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-white">✦</span>}<div className={`max-w-3xl rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${user ? 'rounded-tr-sm bg-accent text-white' : 'rounded-tl-sm bg-white text-slate-700'}`}><div className="whitespace-pre-line">{message.content}</div>{!user && message.mode && <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-[10px] font-bold uppercase tracking-wide text-slate-400"><span className={`rounded-full px-2 py-1 ${message.mode === 'ai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>{message.mode === 'ai' ? `AI · ${message.model}` : 'Preview zonder API-sleutel'}</span><span>Read-only</span>{message.usage && <span>{message.usage.totalTokens.toLocaleString('nl-NL')} tokens</span>}</div>}{message.sources?.length ? <div className="mt-3 border-t pt-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Geraadpleegde bronnen</p><div className="mt-2 flex flex-wrap gap-2">{message.sources.map((source) => <SourceChip key={`${source.kind}-${source.reference}`} source={source} />)}</div></div> : null}</div>{user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">J/H</span>}</div>;
+  return <div className={`flex gap-3 ${user ? 'justify-end' : ''}`}>{!user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-[10px] font-black text-white">AI</span>}<div className={`max-w-3xl rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${user ? 'rounded-tr-sm bg-accent text-white' : 'rounded-tl-sm bg-white text-slate-700'}`}>{user ? <div className="whitespace-pre-line">{message.content}</div> : <MarkdownContent content={message.content} />}{message.proposals?.map((proposal) => <ProposalCard key={proposal.id} proposal={proposal} applied={appliedProposals.includes(proposal.id)} onApply={() => onApplyProposal(proposal)} />)}{!user && message.mode && <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-[10px] font-bold uppercase tracking-wide text-slate-400"><span className={`rounded-full px-2 py-1 ${message.mode === 'ai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>{message.mode === 'ai' ? `AI · ${message.model}` : 'Preview zonder API-sleutel'}</span><span>Wijzigingen met bevestiging</span>{message.usage && <span>{message.usage.totalTokens.toLocaleString('nl-NL')} tokens</span>}</div>}{message.sources?.length ? <div className="mt-3 border-t pt-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Geraadpleegde bronnen</p><div className="mt-2 flex flex-wrap gap-2">{message.sources.map((source) => <SourceChip key={`${source.kind}-${source.reference}`} source={source} />)}</div></div> : null}</div>{user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">J/H</span>}</div>;
+}
+
+function ProposalCard({proposal, applied, onApply}: {proposal: WriteProposal; applied: boolean; onApply: () => void}) {
+  const isPartner = proposal.kind === 'create_partner';
+  const fields = isPartner ? [
+    ['Type', proposal.partner.kind],
+    ['Naam', proposal.partner.name],
+    ['Contact', proposal.partner.contactPerson],
+    ['E-mail', proposal.partner.email],
+    ['Telefoon', proposal.partner.phone],
+    ['Locatie', proposal.partner.location],
+  ].filter(([, value]) => value) : [
+    ['Referentie', proposal.shipment.reference],
+    ['Richting', proposal.shipment.direction],
+    ['Status', proposal.shipment.status],
+    ['Route', `${proposal.shipment.origin} → ${proposal.shipment.destination}`],
+    ['Klant', proposal.shipment.customer],
+    ['Leverancier', proposal.shipment.supplier],
+    ['Vervoerder', proposal.shipment.carrier],
+    ['Geplande levering', proposal.shipment.plannedDeliveryAt ? formatDateTime(proposal.shipment.plannedDeliveryAt) : 'Nog niet gepland'],
+  ].filter(([, value]) => value);
+  const buttonLabel = isPartner ? `${proposal.partner.kind} aanmaken` : proposal.kind === 'create_shipment' ? 'Zending aanmaken' : 'Wijziging doorvoeren';
+  return <div className={`mt-4 rounded-2xl border p-4 ${applied ? 'border-emerald-200 bg-emerald-50' : 'border-blue-200 bg-blue-50'}`}>
+    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><p className={`text-[10px] font-bold uppercase tracking-widest ${applied ? 'text-emerald-700' : 'text-blue-700'}`}>{applied ? 'Opgeslagen in de portal' : 'Wacht op jouw bevestiging'}</p><h3 className="mt-1 font-bold text-navy">{proposal.title}</h3></div><button type="button" onClick={onApply} disabled={applied} className="shrink-0 rounded-xl bg-navy px-4 py-2.5 text-xs font-bold text-white disabled:bg-emerald-600">{applied ? (proposal.kind === 'update_shipment' ? 'Bijgewerkt' : 'Aangemaakt') : buttonLabel}</button></div>
+    {'changes' in proposal && proposal.changes?.length ? <div className="mt-3 rounded-xl bg-white/70 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Voorgestelde wijzigingen</p><ul className="mt-1 space-y-1 text-xs text-slate-700">{proposal.changes.map((change) => <li key={change}>• {change}</li>)}</ul></div> : null}
+    <dl className="mt-3 grid gap-x-5 gap-y-2 text-xs sm:grid-cols-2">{fields.map(([label, value]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="font-semibold text-slate-800">{value}</dd></div>)}</dl>
+    {!applied && <p className="mt-3 text-[11px] text-slate-500">Er wordt nog niets gewijzigd totdat je op de knop drukt.</p>}
+  </div>;
 }
 
 function SourceChip({source}: {source: AnswerSource}) {

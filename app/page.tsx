@@ -78,7 +78,7 @@ export default function Dashboard() {
                 href="/copilot"
                 className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
               >
-                ✦ Vraag Inco Assist
+                Vraag Inco Assist
               </Link>
             </div>
           </div>
