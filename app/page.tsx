@@ -8,6 +8,7 @@ import { ActionForm } from "@/components/action-form";
 import { ActivityForm } from "@/components/activity-form";
 import { StatusBadge } from "@/components/ui";
 import { openAction, today, formatDate } from "@/lib/operations";
+import { isShipmentOverdue, shipmentNeedsAttention } from "@/lib/shipments";
 export default function Dashboard() {
   const { data } = useOperations();
   const [activity, setActivity] = useState(false),
@@ -16,15 +17,30 @@ export default function Dashboard() {
     todayItems = data.activities.filter((x) => x.date === date),
     open = data.actions.filter(openAction),
     late = open.filter((x) => x.dueDate < date),
-    incoming = todayItems.filter(
-      (x) => x.activityType === "Leverancierslevering",
-    ),
-    outgoing = todayItems.filter((x) =>
-      ["Ophaling", "Klantbezorging"].includes(x.activityType),
-    ),
     atRisk = todayItems.filter(
       (x) => x.status === "Vertraagd" || !x.slotConfirmed,
-    );
+    ),
+    activeShipments = data.shipments.filter((x) => !["Afgeleverd", "Geannuleerd"].includes(x.status)),
+    shipmentAttention = data.shipments.filter(shipmentNeedsAttention),
+    shipmentsDueToday = activeShipments.filter((x) => x.plannedDeliveryAt && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) === date);
+  const currentDate = new Date(`${date}T12:00:00`),
+    dayOfWeek = currentDate.getDay(),
+    weekStartDate = new Date(currentDate),
+    weekEndDate = new Date(currentDate);
+  weekStartDate.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  weekEndDate.setDate(weekStartDate.getDate() + 6);
+  const weekStart = weekStartDate.toISOString().slice(0, 10),
+    weekEnd = weekEndDate.toISOString().slice(0, 10),
+    weekItems = data.activities.filter((x) => x.date >= weekStart && x.date <= weekEnd),
+    incomingWeek = weekItems.filter((x) => x.activityType === "Leverancierslevering"),
+    pickupsWeek = weekItems.filter((x) => x.activityType === "Ophaling" && !["Afgerond", "Geannuleerd"].includes(x.status)),
+    inboundShipmentsWeek = data.shipments.filter((x) => x.direction === "Inbound" && x.plannedDeliveryAt && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) >= weekStart && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) <= weekEnd),
+    pickupShipmentsWeek = data.shipments.filter((x) => x.plannedPickupAt && new Date(x.plannedPickupAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) >= weekStart && new Date(x.plannedPickupAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) <= weekEnd && !["Afgeleverd", "Geannuleerd"].includes(x.status)),
+    completedWithTimes = data.shipments.filter((x) => x.actualPickupAt && x.actualDeliveryAt),
+    averageTransitHours = completedWithTimes.length ? Math.round(completedWithTimes.reduce((sum, x) => sum + (new Date(x.actualDeliveryAt as string).getTime() - new Date(x.actualPickupAt as string).getTime()) / 3_600_000, 0) / completedWithTimes.length) : null,
+    staleShipments = activeShipments.filter((x) => Date.now() - new Date(x.updatedAt).getTime() > 72 * 3_600_000),
+    lateActivities = data.activities.filter((x) => x.date < date && !["Afgerond", "Geannuleerd"].includes(x.status)),
+    totalLate = lateActivities.length + data.shipments.filter((shipment) => isShipmentOverdue(shipment)).length;
   const quickSops = allSops.filter(
     (s) =>
       s.status === "Actief" &&
@@ -42,8 +58,8 @@ export default function Dashboard() {
               Dit vraagt vandaag aandacht.
             </h1>
             <p className="mt-3 max-w-2xl leading-7 text-blue-100">
-              Planning, acties, voorraad, officiële SOP’s en de keuze tussen
-              intern uitvoeren of het extern magazijn / 3PL.
+              Zendingen, acties, voorraad en officiële SOP’s — met een
+              bronvaste Inco Assist die alleen de gegevens in deze app gebruikt.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <button
@@ -59,10 +75,10 @@ export default function Dashboard() {
                 + Actie
               </button>
               <Link
-                href="/magazijnbeslissing"
+                href="/copilot"
                 className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
               >
-                Start magazijnbeslissing
+                ✦ Vraag Inco Assist
               </Link>
             </div>
           </div>
@@ -72,31 +88,32 @@ export default function Dashboard() {
               {formatDate(date)}
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <Mini value={incoming.length} label="Leveringen" />
-              <Mini value={outgoing.length} label="Uitgaand" />
+              <Mini value={shipmentsDueToday.length} label="Vandaag verwacht" />
+              <Mini value={activeShipments.length} label="Actieve zendingen" />
               <Mini value={open.length} label="Open acties" />
-              <Mini value={late.length + atRisk.length} label="Risico’s" />
+              <Mini value={shipmentAttention.length + atRisk.length} label="Aandacht" />
             </div>
           </div>
         </div>
       </section>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi
-          value={incoming.length}
-          label="Binnenkomend vandaag"
+          value={activeShipments.length}
+          label="Actieve zendingen"
           note={
-            incoming.length
-              ? "Controleer bloktijd en ETA"
-              : "Geen levering gepland"
+            activeShipments.length
+              ? "Open het centrale zendingendossier"
+              : "Nog geen zendingen geregistreerd"
           }
         />
         <Kpi
-          value={outgoing.length}
-          label="Uitgaand vandaag"
+          value={shipmentAttention.length}
+          label="Zendingen met aandacht"
+          tone={shipmentAttention.length ? "red" : "green"}
           note={
-            outgoing.length
-              ? "Controleer cut-off en tracking"
-              : "Geen verzending gepland"
+            shipmentAttention.length
+              ? "Vertraagd, geblokkeerd of over tijd"
+              : "Geen zichtbare uitzonderingen"
           }
         />
         <Kpi
@@ -113,6 +130,19 @@ export default function Dashboard() {
           note="Actuele SOP-bibliotheek"
         />
       </div>
+      <section className="mt-8">
+        <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div><h2 className="text-xl font-bold text-navy">Weeksturing</h2><p className="mt-1 text-sm text-slate-500">Gebaseerd op de zendingen, activiteiten en acties die in deze portal zijn vastgelegd.</p></div>
+          <span className="text-xs font-bold text-slate-500">{weekStart} t/m {weekEnd}</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <Kpi value={averageTransitHours === null ? "—" : `${averageTransitHours}u`} label="Gem. transporttijd" note={averageTransitHours === null ? "Nog geen complete tijdlijn" : `${completedWithTimes.length} afgeronde zending(en)`} />
+          <Kpi value={inboundShipmentsWeek.length || incomingWeek.length} label="Komt deze week binnen" note="Zendingen of geplande leveranciersleveringen" />
+          <Kpi value={pickupShipmentsWeek.length || pickupsWeek.length} label="Nog af te halen" note="Open ophalingen deze week" />
+          <Kpi value={staleShipments.length} label="Zonder update > 3 dagen" tone={staleShipments.length ? "red" : "green"} note="Actieve zendingendossiers" />
+          <Kpi value={totalLate} label="Te laat" tone={totalLate ? "red" : "green"} note="Open zendingen en activiteiten over tijd" />
+        </div>
+      </section>
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.5fr_.75fr]">
         <section>
           <div className="mb-4 flex items-center justify-between">
@@ -196,7 +226,7 @@ function Kpi({
   note,
   tone = "blue",
 }: {
-  value: number;
+  value: number | string;
   label: string;
   note: string;
   tone?: string;

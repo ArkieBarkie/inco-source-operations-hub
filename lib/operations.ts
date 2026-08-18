@@ -1,7 +1,7 @@
 import type {ActivityStatus,ActionItem,PlannedActivity} from '@/types/operations';
 export const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Amsterdam'});
 export const formatDate=(v:string)=>new Intl.DateTimeFormat('nl-NL',{weekday:'short',day:'numeric',month:'short',timeZone:'Europe/Amsterdam'}).format(new Date(`${v}T12:00:00`));
-export const statusClass=(s:ActivityStatus|string)=>s==='Afgerond'||s==='Opgelost'||s==='Gesloten'?'bg-emerald-100 text-emerald-800':s==='Vertraagd'||s==='Kritiek'?'bg-red-100 text-red-800':s==='Onderweg'||s==='Wordt verwerkt'||s==='In behandeling'?'bg-amber-100 text-amber-800':'bg-blue-100 text-blue-800';
+export const statusClass=(s:ActivityStatus|string)=>['Afgerond','Afgeleverd','Aangekomen','Opgelost','Gesloten'].includes(s)?'bg-emerald-100 text-emerald-800':['Vertraagd','Geblokkeerd','Kritiek'].includes(s)?'bg-red-100 text-red-800':['Onderweg','Wordt verwerkt','In behandeling'].includes(s)?'bg-amber-100 text-amber-800':['Geannuleerd'].includes(s)?'bg-slate-100 text-slate-600':'bg-blue-100 text-blue-800';
 export const openAction=(a:ActionItem)=>!['Opgelost','Gesloten'].includes(a.status);
 export const activityWarnings=(activities:PlannedActivity[])=>{
   const warnings:string[]=[];

@@ -17,9 +17,14 @@ SOPs-herzien-Word/
 automation-opportunities.md
 data-quality-report.md
 SOP-HERBEOORDELING-*.md
+outputs/
+docs/2026-08-18-jorn-input-en-voorstellen.md
+scripts/apply-jorn-knowledge.mjs
+.vercel/
 
 # Lokale logs en systeeminstellingen.
 *.log
+*.tsbuildinfo
 .env*
 !.env.example
 .DS_Store
