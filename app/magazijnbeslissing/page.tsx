@@ -108,7 +108,7 @@ export default function Magazijnbeslissing() {
     <header className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
       <div>
         <p className="label">Onderbouwd locatiebesluit</p>
-        <h1 className="mt-2 max-w-4xl text-4xl font-bold text-navy">Kies de beste afhandelroute</h1>
+        <h1 className="mt-2 max-w-4xl text-3xl font-bold text-navy sm:text-4xl">Kies de beste afhandelroute</h1>
         <p className="mt-3 max-w-3xl leading-7 text-slate-600">Selecteer een zending en vergelijk intern Amstelveen, de huidige 3PL, directe levering en een kandidaat-3PL. Een advies verschijnt pas wanneer de noodzakelijke feiten zijn bevestigd.</p>
       </div>
       <Link href="/sops/sop-007-keuze-intern-magazijn-3pl-en-transfers" className="min-h-11 self-start rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-bold text-accent">Open SOP-007 →</Link>
@@ -209,16 +209,20 @@ export default function Magazijnbeslissing() {
 
     <AssumptionsPanel assumptions={assumptions} setAssumptions={setAssumptions} />
 
-    <section className="card mt-6 p-5 sm:p-7">
+    <section className="card mt-6 hidden p-5 sm:p-7 md:block">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><div><p className="label">Audittrail</p><h2 className="mt-1 text-xl font-bold text-navy">Recente locatiebesluiten</h2></div><p className="text-xs text-slate-500">In database-stand ook centraal met mutatie-auditlog opgeslagen.</p></div>
       {recentDecisions.length ? <div className="mt-5 divide-y overflow-hidden rounded-2xl border">{recentDecisions.map((decision) => <DecisionRow key={decision.id} decision={decision} />)}</div> : <div className="mt-5 rounded-2xl border border-dashed p-6 text-center text-sm text-slate-500">Nog geen locatiebesluiten vastgelegd.</div>}
     </section>
 
-    <section className="mt-6 grid gap-4 md:grid-cols-3">
+    <details className="card mt-6 p-5 md:hidden"><summary className="cursor-pointer list-none"><div className="flex items-center justify-between gap-3"><div><p className="label">Audittrail</p><h2 className="mt-1 font-bold text-navy">Recente locatiebesluiten</h2></div><span className="text-xl text-slate-400">+</span></div></summary>{recentDecisions.length ? <div className="mt-4 divide-y overflow-hidden rounded-2xl border">{recentDecisions.map((decision) => <DecisionRow key={decision.id} decision={decision} />)}</div> : <p className="mt-4 rounded-xl border border-dashed p-4 text-center text-sm text-slate-500">Nog geen locatiebesluiten vastgelegd.</p>}</details>
+
+    <section className="mt-6 hidden gap-4 md:grid md:grid-cols-3">
       <PartnerCard eyebrow="Huidige 3PL" title="Scan Global Logistics">Tarieven, cut-offs, voorraadbetrouwbaarheid en SLA moeten als actuele bron worden bevestigd.</PartnerCard>
       <PartnerCard eyebrow="Kandidaat-3PL" title="Logicall Zaandam">Offerte 20260254 is indicatief opgenomen; kwalificatie, deadline en medische handling blijven expliciete poorten.</PartnerCard>
       <PartnerCard eyebrow="Belangrijk" title="Geen migratie op uitstraling alleen">Voorraadreconciliatie, implementatie-uren, contract, testflow en terugvalscenario blijven onderdeel van de uiteindelijke partnerkeuze.</PartnerCard>
     </section>
+
+    <details className="card mt-6 p-5 md:hidden"><summary className="cursor-pointer list-none"><div className="flex items-center justify-between gap-3"><div><p className="label">Partnercontext</p><h2 className="mt-1 font-bold text-navy">3PL-bronnen en overstapvoorwaarden</h2></div><span className="text-xl text-slate-400">+</span></div></summary><div className="mt-4 space-y-4"><PartnerCard eyebrow="Huidige 3PL" title="Scan Global Logistics">Tarieven, cut-offs, voorraadbetrouwbaarheid en SLA moeten als actuele bron worden bevestigd.</PartnerCard><PartnerCard eyebrow="Kandidaat-3PL" title="Logicall Zaandam">Offerte 20260254 is indicatief opgenomen; kwalificatie, deadline en medische handling blijven expliciete poorten.</PartnerCard><PartnerCard eyebrow="Belangrijk" title="Geen migratie op uitstraling alleen">Voorraadreconciliatie, implementatie-uren, contract, testflow en terugvalscenario blijven onderdeel van de uiteindelijke partnerkeuze.</PartnerCard></div></details>
   </div>;
 }
 
@@ -236,7 +240,7 @@ function DecisionSummary({result, goToMissing}: {result: ReturnType<typeof calcu
   const ready = result.ready && result.recommendation;
   const tone = result.recommendation === 'escalate' ? 'bg-amber-600' : ready ? 'bg-navy' : 'bg-slate-800';
   const recommendedOption = result.options.find((option) => option.id === result.recommendation);
-  return <aside className="space-y-4 xl:sticky xl:top-24">
+  return <aside className="order-first space-y-4 xl:order-none xl:sticky xl:top-24">
     <section className={`rounded-3xl p-6 text-white shadow-soft ${tone}`}>
       <div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-widest opacity-70">Actueel advies</p><span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase">Zekerheid {result.confidence}</span></div>
       <h2 className="mt-3 text-2xl font-bold sm:text-3xl">{result.recommendationLabel}</h2>
