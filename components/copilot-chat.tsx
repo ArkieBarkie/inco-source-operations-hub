@@ -72,6 +72,15 @@ const initialMessage: Message = {
   content: 'Ik ben Inco Assist. Vraag naar een zending, relatie, voorraad, ordercheck, planning, SOP of de keuze intern versus 3PL. Je kunt me ook een klant, zending, opvolgactie of afwijking laten voorbereiden. Iedere wijziging wacht op jouw bevestiging.',
 };
 
+function accountInitials(displayName: string) {
+  const nameParts = displayName.trim().split(/\s+/).filter(Boolean);
+  if (!nameParts.length) return '?';
+  if (nameParts.length === 1) return Array.from(nameParts[0])[0]?.toLocaleUpperCase('nl-NL') ?? '?';
+  const first = Array.from(nameParts[0])[0] ?? '';
+  const last = Array.from(nameParts.at(-1) ?? '')[0] ?? '';
+  return `${first}${last}`.toLocaleUpperCase('nl-NL');
+}
+
 function privacySafeSnapshot(data: OperationsData) {
   return {
     shipments: data.shipments.slice(0, 200).map((shipment) => ({...shipment, notes: '', events: shipment.events.slice(-10).map((event) => ({...event, detail: undefined}))})),
@@ -85,7 +94,9 @@ function privacySafeSnapshot(data: OperationsData) {
 }
 
 export function CopilotChat() {
-  const {data, loadDemoData, savePartner, saveShipment, saveAction, canEdit, canAdmin} = useOperations();
+  const {data, loadDemoData, savePartner, saveShipment, saveAction, canEdit, canAdmin, session} = useOperations();
+  const accountName = session?.displayName ?? 'Gebruiker';
+  const initials = accountInitials(accountName);
   const suggestions = [
     `Hoe zit het met zending ${data.shipments[0]?.reference ?? 'IS-OUT-…'}?`,
     'Welke zendingen vragen nu aandacht?',
@@ -229,7 +240,7 @@ export function CopilotChat() {
         <div className="flex items-center justify-between border-b px-5 py-4 sm:px-7"><div><h1 className="font-bold text-navy">Vraag het aan Inco Assist</h1><p className="text-xs text-slate-500">Antwoorden bevatten bron, actualiteit en rekenaannames</p></div><button onClick={() => {setMessages([initialMessage]); setError('');}} className="rounded-lg border px-3 py-2 text-xs font-bold text-slate-600">Nieuw gesprek</button></div>
 
         <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto bg-slate-50/60 p-5 sm:p-7">
-          {messages.map((message) => <MessageBubble key={message.id} message={message} appliedProposals={appliedProposals} onApplyProposal={applyProposal} />)}
+          {messages.map((message) => <MessageBubble key={message.id} message={message} appliedProposals={appliedProposals} onApplyProposal={applyProposal} accountName={accountName} initials={initials} />)}
           {loading && <div className="flex gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-[10px] font-black text-white">AI</span><div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm text-slate-500 shadow-sm"><span className="animate-pulse">Bronnen raadplegen en antwoord samenstellen…</span></div></div>}
           {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><b>Inco Assist niet beschikbaar.</b><p className="mt-1">{error}</p></div>}
         </div>
@@ -246,9 +257,9 @@ export function CopilotChat() {
   );
 }
 
-function MessageBubble({message, appliedProposals, onApplyProposal}: {message: Message; appliedProposals: string[]; onApplyProposal: (proposal: WriteProposal) => void}) {
+function MessageBubble({message, appliedProposals, onApplyProposal, accountName, initials}: {message: Message; appliedProposals: string[]; onApplyProposal: (proposal: WriteProposal) => void; accountName: string; initials: string}) {
   const user = message.role === 'user';
-  return <div className={`flex gap-3 ${user ? 'justify-end' : ''}`}>{!user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-[10px] font-black text-white">AI</span>}<div className={`max-w-3xl rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${user ? 'rounded-tr-sm bg-accent text-white' : 'rounded-tl-sm bg-white text-slate-700'}`}>{user ? <div className="whitespace-pre-line">{message.content}</div> : <MarkdownContent content={message.content} />}{message.proposals?.map((proposal) => <ProposalCard key={proposal.id} proposal={proposal} applied={appliedProposals.includes(proposal.id)} onApply={() => onApplyProposal(proposal)} />)}{!user && message.mode && <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-[10px] font-bold uppercase tracking-wide text-slate-400"><span className={`rounded-full px-2 py-1 ${message.mode === 'ai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>{message.mode === 'ai' ? `AI · ${message.model}` : 'Preview zonder API-sleutel'}</span><span>Wijzigingen met bevestiging</span>{message.usage && <span>{message.usage.totalTokens.toLocaleString('nl-NL')} tokens</span>}</div>}{message.sources?.length ? <div className="mt-3 border-t pt-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Geraadpleegde bronnen</p><div className="mt-2 flex flex-wrap gap-2">{message.sources.map((source) => <SourceChip key={`${source.kind}-${source.reference}`} source={source} />)}</div></div> : null}</div>{user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">J/H</span>}</div>;
+  return <div className={`flex gap-3 ${user ? 'justify-end' : ''}`} aria-label={user ? `Bericht van ${accountName}` : 'Bericht van Inco Assist'}>{!user && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-[10px] font-black text-white">AI</span>}<div className={`max-w-3xl rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${user ? 'rounded-tr-sm bg-accent text-white' : 'rounded-tl-sm bg-white text-slate-700'}`}>{user ? <div className="whitespace-pre-line">{message.content}</div> : <MarkdownContent content={message.content} />}{message.proposals?.map((proposal) => <ProposalCard key={proposal.id} proposal={proposal} applied={appliedProposals.includes(proposal.id)} onApply={() => onApplyProposal(proposal)} />)}{!user && message.mode && <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-[10px] font-bold uppercase tracking-wide text-slate-400"><span className={`rounded-full px-2 py-1 ${message.mode === 'ai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>{message.mode === 'ai' ? `AI · ${message.model}` : 'Preview zonder API-sleutel'}</span><span>Wijzigingen met bevestiging</span>{message.usage && <span>{message.usage.totalTokens.toLocaleString('nl-NL')} tokens</span>}</div>}{message.sources?.length ? <div className="mt-3 border-t pt-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Geraadpleegde bronnen</p><div className="mt-2 flex flex-wrap gap-2">{message.sources.map((source) => <SourceChip key={`${source.kind}-${source.reference}`} source={source} />)}</div></div> : null}</div>{user && <span title={accountName} aria-label={accountName} className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-100 text-xs font-bold text-blue-800">{initials}</span>}</div>;
 }
 
 function ProposalCard({proposal, applied, onApply}: {proposal: WriteProposal; applied: boolean; onApply: () => void}) {
