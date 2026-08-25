@@ -3,9 +3,10 @@ import {getPortalUserById} from './lib/auth-config';
 import {PORTAL_SESSION_COOKIE, verifyPortalSession} from './lib/auth-token';
 
 const publicPaths = ['/login', '/api/auth/login', '/api/health', '/robots.txt', '/manifest.webmanifest', '/icon.svg', '/favicon.ico'];
+const developmentScriptPolicy = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : '';
 const edgeSecurityHeaders = {
   'Cache-Control': 'private, no-store, max-age=0',
-  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; connect-src 'self'; font-src 'self' data:; form-action 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests",
+  'Content-Security-Policy': `default-src 'self'; base-uri 'self'; connect-src 'self'; font-src 'self' data:; form-action 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'${developmentScriptPolicy}; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests`,
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Resource-Policy': 'same-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
