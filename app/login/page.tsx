@@ -106,7 +106,7 @@ export default function LoginPage() {
         <div className="max-w-xl">
           <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-100 backdrop-blur">Eén operationeel overzicht</span>
           <h2 className="mt-8 text-5xl font-black leading-[1.05] tracking-[-0.04em] xl:text-6xl">Grip op iedere zending.</h2>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-slate-300">Van ordercontrole tot aflevering: werk vanuit één helder overzicht met dezelfde actuele operationele feiten.</p>
+          <p className="mt-6 max-w-lg text-lg leading-8 text-slate-300">Van ordervrijgave tot aflevering: werk vanuit één helder overzicht met dezelfde actuele operationele feiten.</p>
 
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
             {[['01', 'Plan vooruit'], ['02', 'Bewaak risico’s'], ['03', 'Werk samen']].map(([number, label]) => <div key={number} className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur-sm"><span className="text-xs font-black text-cyan-300">{number}</span><p className="mt-2 text-sm font-bold text-white">{label}</p></div>)}

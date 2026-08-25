@@ -120,12 +120,10 @@ const directions: ShipmentDirection[] = [
   'Outbound', 'Inbound', 'Outbound', 'Inbound', 'Transfer',
   'Outbound', 'Outbound', 'Inbound', 'Retour', 'Outbound',
   'Inbound', 'Outbound', 'Inbound', 'Outbound', 'Transfer',
-  'Outbound', 'Inbound', 'Outbound', 'Retour', 'Inbound',
-  'Outbound', 'Inbound', 'Outbound', 'Transfer', 'Outbound',
 ];
 
 const exceptionStatuses: Partial<Record<number, ShipmentStatus>> = {
-  0: 'Onderweg', 1: 'Vertraagd', 7: 'Vertraagd', 13: 'Geblokkeerd', 18: 'Aangekomen', 21: 'Vertraagd',
+  0: 'Onderweg', 1: 'Vertraagd', 8: 'Aangekomen', 13: 'Geblokkeerd',
 };
 
 const statusFor = (index: number, dayIndex: number): ShipmentStatus => {
@@ -171,7 +169,7 @@ const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction,
   const actualPickupAt = ['Onderweg', 'Aangekomen', 'Afgeleverd', 'Vertraagd', 'Geblokkeerd'].includes(status)
     ? shiftHours(plannedPickupAt, index % 4 === 0 ? 1 : 0)
     : undefined;
-  const actualDeliveryAt = status === 'Afgeleverd' ? shiftHours(plannedDeliveryAt, index % 3 === 0 ? -0.5 : 0.25) : undefined;
+  const actualDeliveryAt = status === 'Afgeleverd' ? shiftHours(plannedDeliveryAt, -0.5) : undefined;
   const reference = shipmentReference(plannedPickupAt, index);
   const orderReference = direction === 'Inbound'
     ? `PO-26-${3100 + number}`
@@ -276,17 +274,17 @@ const actionTemplates: Array<Pick<ActionItem, 'title' | 'description' | 'type' |
   {title: 'Nieuwe ETA opvragen', shipmentIndex: 1, description: 'De geplande levertijd is verstreken en een bevestigde ETA ontbreekt.', type: 'Afwijking', priority: 'Kritiek', owner: 'Hidde', status: 'In behandeling', relatedParty: 'Dachser Testnet'},
   {title: 'Batchdocumentatie compleet maken', shipmentIndex: 13, description: 'Certificate of Analysis en batchoverzicht ontbreken nog.', type: 'Afwijking', priority: 'Hoog', owner: 'Jorn', status: 'Wacht op informatie', relatedParty: 'SteriLab SAS'},
   {title: 'POD controleren en archiveren', shipmentIndex: 2, description: 'Proof of delivery controleren en koppelen aan het orderdossier.', type: 'Actie', priority: 'Normaal', owner: 'Jorn', status: 'Opgelost', relatedParty: 'DHL Freight Test'},
-  {title: 'Voorraadverschil MED-1007 onderzoeken', shipmentIndex: 4, description: '3PL-stand wijkt twaalf stuks af van de lokale teststand.', type: 'Afwijking', priority: 'Hoog', owner: 'Hidde', status: 'Nieuw', relatedParty: 'Scan Global Logistics'},
+  {title: 'Voorraadverschil MED-1007 onderzoeken', shipmentIndex: 4, description: '3PL-stand wijkt twaalf stuks af van de lokale teststand.', type: 'Afwijking', priority: 'Normaal', owner: 'Hidde', status: 'Opgelost', relatedParty: 'Scan Global Logistics'},
   {title: 'Bloktijd donderdagmiddag bevestigen', shipmentIndex: 7, description: 'Twee grote leveringen staan op hetzelfde tijdvak.', type: 'Actie', priority: 'Hoog', owner: 'Jorn', status: 'In behandeling', relatedParty: 'Iberia Medical SL'},
-  {title: 'Retour dispositioneren', shipmentIndex: 18, description: 'Controleer verpakking, batch en verkoopbaarheid na retourontvangst.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'Nieuw', relatedParty: 'Kliniek Noord-Holland'},
-  {title: 'Klant informeren over vertraging', shipmentIndex: 16, description: 'De nieuwe leverdatum schriftelijk bevestigen.', type: 'Actie', priority: 'Kritiek', owner: 'Jorn', status: 'Wacht op informatie', relatedParty: 'Vitaal Apotheken'},
-  {title: 'Vrijgave geblokkeerde voorraad beoordelen', shipmentIndex: 8, description: 'Kwaliteitsdocumentatie voor MED-1014 controleren.', type: 'Afwijking', priority: 'Hoog', owner: 'Hidde', status: 'In behandeling', relatedParty: 'MediCore GmbH'},
+  {title: 'Retour dispositioneren', shipmentIndex: 8, description: 'Controleer verpakking, batch en verkoopbaarheid na retourontvangst.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'Opgelost', relatedParty: 'Kliniek Noord-Holland'},
+  {title: 'Klant informeren over vertraging', shipmentIndex: 1, description: 'De nieuwe leverdatum schriftelijk bevestigen.', type: 'Actie', priority: 'Normaal', owner: 'Jorn', status: 'Opgelost', relatedParty: 'Vitaal Apotheken'},
+  {title: 'Vrijgave geblokkeerde voorraad beoordelen', shipmentIndex: 8, description: 'Kwaliteitsdocumentatie voor MED-1014 controleren.', type: 'Afwijking', priority: 'Hoog', owner: 'Hidde', status: 'Opgelost', relatedParty: 'MediCore GmbH'},
   {title: '3PL dagtelling reconciliëren', shipmentIndex: 14, description: 'Vergelijk interne testvoorraad met de 17:00-export.', type: 'Actie', priority: 'Normaal', owner: 'Jorn', status: 'Nieuw', relatedParty: 'Scan Global Logistics'},
-  {title: 'Transportclaim beschadigde colli', shipmentIndex: 9, description: 'Foto’s, vrachtbrief en waarde-overzicht verzamelen.', type: 'Afwijking', priority: 'Hoog', owner: 'Hidde', status: 'Wacht op informatie', relatedParty: 'DSV Test Logistics'},
-  {title: 'Leveranciersscorecard augustus bijwerken', shipmentIndex: 10, description: 'OTIF, documentkwaliteit en respons op afwijkingen verwerken.', type: 'Actie', priority: 'Laag', owner: 'Jorn', status: 'Nieuw', relatedParty: 'Nordic Care AB'},
-  {title: 'Orderhold herbeoordelen', shipmentIndex: 15, description: 'Marge en voorraad zijn aangepast; commerciële vrijgave opnieuw uitvoeren.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'In behandeling', relatedParty: 'CarePoint Brabant'},
+  {title: 'Transportclaim beschadigde colli', shipmentIndex: 9, description: 'Foto’s, vrachtbrief en waarde-overzicht verzamelen.', type: 'Afwijking', priority: 'Hoog', owner: 'Hidde', status: 'Opgelost', relatedParty: 'DSV Test Logistics'},
+  {title: 'Leveranciersscorecard augustus bijwerken', shipmentIndex: 10, description: 'OTIF, documentkwaliteit en respons op afwijkingen verwerken.', type: 'Actie', priority: 'Laag', owner: 'Jorn', status: 'Opgelost', relatedParty: 'Nordic Care AB'},
+  {title: 'Orderhold herbeoordelen', shipmentIndex: 13, description: 'Marge en voorraad zijn aangepast; commerciële vrijgave opnieuw uitvoeren.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'In behandeling', relatedParty: 'CarePoint Brabant'},
   {title: 'Spoedrit naar Antwerpen evalueren', shipmentIndex: 11, description: 'Werkelijke kosten en klantimpact vastleggen.', type: 'Actie', priority: 'Laag', owner: 'Jorn', status: 'Gesloten', relatedParty: 'Van den Bosch Testtransport'},
-  {title: 'Ontvangstcapaciteit vrijdag borgen', shipmentIndex: 19, description: 'Zes pallets inbound combineren met reguliere klantpick.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'Nieuw', relatedParty: 'Alpine Diagnostics AG'},
+  {title: 'Ontvangstcapaciteit vrijdag borgen', shipmentIndex: 12, description: 'Zes pallets inbound combineren met reguliere klantpick.', type: 'Actie', priority: 'Normaal', owner: 'Hidde', status: 'Nieuw', relatedParty: 'Alpine Diagnostics AG'},
 ];
 
 const createActions = (activities: PlannedActivity[]): ActionItem[] => actionTemplates.map(({shipmentIndex, ...template}, index) => ({
@@ -295,7 +293,7 @@ const createActions = (activities: PlannedActivity[]): ActionItem[] => actionTem
   title: `${template.title} · ${activities[shipmentIndex]?.reference ?? 'intern dossier'}`,
   relatedActivityId: activities[shipmentIndex]?.id,
   createdAt: weekAt(Math.max(0, currentBusinessDay() - 1), 8 + (index % 8)),
-  dueDate: dateAt(index % 4 - 1),
+  dueDate: ['Opgelost', 'Gesloten'].includes(template.status) ? dateAt(-1) : dateAt(index === 0 ? -1 : index % 3 + 1),
   resolvedAt: ['Opgelost', 'Gesloten'].includes(template.status) ? weekAt(currentBusinessDay(), 12 + (index % 4)) : undefined,
   notes: 'TESTDATA · Fictieve actie voor de portaal- en Inco Assist-test.',
 }));
@@ -366,13 +364,13 @@ const createOrderChecks = (shipments: Shipment[]): OrderCheckRecord[] => shipmen
   .slice(0, 12)
   .map((shipment, index) => {
     const policy = companyProfile.commercialPolicy;
-    const stockAvailable = index % 5 !== 2;
-    const complianceComplete = index % 6 !== 3;
-    const documentationComplete = index % 4 !== 1;
-    const incoterm: OrderCheckRecord['incoterm'] = index % 4 === 1 ? 'DAP' : 'EXW';
-    const orderValue = 1_750 + index * 950;
-    const netMarginPercentage = 10 + (index % 5) * 2.5;
-    const netProfit = 180 + index * 85;
+    const stockAvailable = index !== 6;
+    const complianceComplete = true;
+    const documentationComplete = true;
+    const incoterm: OrderCheckRecord['incoterm'] = index === 6 ? 'DAP' : 'EXW';
+    const orderValue = 5_600 + index * 850;
+    const netMarginPercentage = 12 + (index % 4) * 2;
+    const netProfit = 620 + index * 90;
     const valueOk = incoterm === 'EXW'
       ? orderValue >= policy.minimumOrderValueExw
       : orderValue >= policy.dapExceptionMinimumOrderValue;

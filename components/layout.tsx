@@ -8,22 +8,35 @@ import logo from '@/public/brand/inco-source-logo.png';
 import {Icon} from './icons';
 import {useOperations} from './operations-provider';
 
-export const nav = [
-  {href: '/', label: 'Overzicht', mobileLabel: 'Overzicht', icon: 'grid'},
-  {href: '/kpis', label: 'KPI Cockpit', mobileLabel: 'KPI’s', icon: 'flow'},
-  {href: '/besliscentrum', label: 'Besliscentrum', mobileLabel: 'Besluiten', icon: 'alert'},
-  {href: '/copilot', label: 'Inco Assist', mobileLabel: 'Inco Assist', icon: 'spark'},
-  {href: '/zendingen', label: 'Zendingen', mobileLabel: 'Zendingen', icon: 'truck'},
-  {href: '/dagstart', label: 'Dagstart', mobileLabel: 'Dagstart', icon: 'home'},
-  {href: '/planning', label: 'Planning', mobileLabel: 'Planning', icon: 'calendar'},
-  {href: '/acties', label: 'Acties', mobileLabel: 'Acties', icon: 'alert'},
-  {href: '/ordercheck', label: 'Ordercheck', mobileLabel: 'Ordercheck', icon: 'check'},
-  {href: '/voorraad', label: 'Voorraad', mobileLabel: 'Voorraad', icon: 'box'},
-  {href: '/magazijnbeslissing', label: 'Intern of 3PL', mobileLabel: 'Intern / 3PL', icon: 'flow'},
-  {href: '/leveranciers', label: 'Relaties', mobileLabel: 'Relaties', icon: 'users'},
-  {href: '/sops', label: 'SOP-bibliotheek', mobileLabel: 'SOP’s', icon: 'doc'},
-  {href: '/instellingen', label: 'Instellingen', mobileLabel: 'Instellingen', icon: 'settings'},
-] as const;
+type NavItem = {href: string; label: string; mobileLabel: string; icon: Parameters<typeof Icon>[0]['name']};
+type NavSection = {label: string; adminOnly?: boolean; items: readonly NavItem[]};
+
+export const navSections: readonly NavSection[] = [
+  {label: 'Start', items: [
+    {href: '/', label: 'Overzicht', mobileLabel: 'Overzicht', icon: 'grid'},
+    {href: '/dagstart', label: 'Dagstart', mobileLabel: 'Dagstart', icon: 'home'},
+  ]},
+  {label: 'Sturing', items: [
+    {href: '/besliscentrum', label: 'Besliscentrum', mobileLabel: 'Besluiten', icon: 'alert'},
+    {href: '/kpis', label: 'KPI Cockpit', mobileLabel: 'KPI’s', icon: 'flow'},
+  ]},
+  {label: 'Uitvoering', items: [
+    {href: '/zendingen', label: 'Zendingen', mobileLabel: 'Zendingen', icon: 'truck'},
+    {href: '/planning', label: 'Planning', mobileLabel: 'Planning', icon: 'calendar'},
+    {href: '/acties', label: 'Acties', mobileLabel: 'Acties', icon: 'alert'},
+    {href: '/ordercheck', label: 'Ordervrijgave', mobileLabel: 'Vrijgave', icon: 'check'},
+  ]},
+  {label: 'Data & kennis', items: [
+    {href: '/voorraad', label: 'Voorraad', mobileLabel: 'Voorraad', icon: 'box'},
+    {href: '/leveranciers', label: 'Relaties', mobileLabel: 'Relaties', icon: 'users'},
+    {href: '/sops', label: 'SOP-bibliotheek', mobileLabel: 'SOP’s', icon: 'doc'},
+  ]},
+  {label: 'Beheer', adminOnly: true, items: [
+    {href: '/instellingen', label: 'Instellingen', mobileLabel: 'Instellingen', icon: 'settings'},
+  ]},
+];
+
+export const nav = navSections.flatMap((section) => section.items);
 
 const activeFor = (pathname: string, href: string) => {
   if (href === '/') return pathname === '/';
@@ -37,15 +50,16 @@ export function Brand({light = false}: {light?: boolean}) {
 
 export function Sidebar() {
   const pathname = usePathname();
-  return <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 overflow-y-auto bg-navy text-white lg:block"><div className="border-b border-white/10 p-5"><Brand light /></div><nav className="space-y-1 p-3">{nav.map((item) => {
+  const {canAdmin} = useOperations();
+  return <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 overflow-y-auto bg-navy text-white lg:block"><div className="border-b border-white/10 p-5"><Brand light /></div><nav className="space-y-4 p-3">{navSections.filter((section) => !section.adminOnly || canAdmin).map((section) => <div key={section.label}><p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-[.18em] text-blue-300/70">{section.label}</p><div className="space-y-1">{section.items.map((item) => {
     const active = activeFor(pathname, item.href);
-    return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${active ? 'bg-white text-navy shadow-sm' : 'text-slate-200 hover:bg-white/10 hover:text-white'}`}><Icon name={item.icon} />{item.label}{item.href === '/besliscentrum' && <span className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${active ? 'bg-red-100 text-red-700' : 'bg-red-400/20 text-red-100'}`}>Nieuw</span>}</Link>;
-  })}</nav></aside>;
+    return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${active ? 'bg-white text-navy shadow-sm' : 'text-slate-200 hover:bg-white/10 hover:text-white'}`}><Icon name={item.icon} />{item.label}{item.href === '/besliscentrum' && <span className={`ml-auto h-2 w-2 rounded-full ${active ? 'bg-red-500' : 'bg-red-300'}`} aria-label="Nieuwe beslissingen" />}</Link>;
+  })}</div></div>)}</nav></aside>;
 }
 
 export function Header() {
   const pathname = usePathname();
-  const {session, syncState} = useOperations();
+  const {session, syncState, canAdmin} = useOperations();
   const [moreOpen, setMoreOpen] = useState(false);
   useEffect(() => setMoreOpen(false), [pathname]);
   useEffect(() => {
@@ -57,7 +71,7 @@ export function Header() {
     return () => window.clearTimeout(timer);
   }, [session]);
   const primary = nav.filter((item) => ['/', '/besliscentrum', '/zendingen'].includes(item.href));
-  const more = nav.filter((item) => !primary.includes(item));
+  const moreSections = navSections.map((section) => ({...section, items: section.items.filter((item) => !primary.includes(item))})).filter((section) => section.items.length && (!section.adminOnly || canAdmin));
 
   return <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
     <div className="container-page flex h-16 items-center justify-between gap-3">
@@ -77,10 +91,10 @@ export function Header() {
       })}
       <button type="button" onClick={() => setMoreOpen((value) => !value)} aria-expanded={moreOpen} className={`flex flex-col items-center gap-1 rounded-lg px-1 py-2 text-[10px] font-bold ${moreOpen ? 'bg-navy text-white' : 'bg-slate-50 text-slate-700'}`}><Icon name="grid" className="h-4 w-4" />Meer</button>
     </nav>
-    {moreOpen && <nav aria-label="Alle onderdelen" className="grid grid-cols-2 gap-2 border-t bg-white p-3 shadow-lg lg:hidden">{more.map((item) => {
+    {moreOpen && <nav aria-label="Alle onderdelen" className="max-h-[calc(100vh-8rem)] overflow-y-auto border-t bg-white p-3 shadow-lg lg:hidden">{moreSections.map((section) => <div className="mb-3 last:mb-0" key={section.label}><p className="mb-1 px-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">{section.label}</p><div className="grid grid-cols-2 gap-2">{section.items.map((item) => {
       const active = activeFor(pathname, item.href);
       return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold ${active ? 'bg-navy text-white' : 'bg-slate-50 text-slate-700'}`}><Icon name={item.icon} className="h-4 w-4" />{item.mobileLabel}</Link>;
-    })}</nav>}
+    })}</div></div>)}</nav>}
   </header>;
 }
 

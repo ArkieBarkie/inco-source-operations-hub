@@ -246,7 +246,7 @@ const tools: Tool[] = [
   {
     type: 'function',
     name: 'get_order_checks',
-    description: 'Zoekt commerciële orderchecks en toont vrijgave, hold of benodigde escalatie met onderliggende controles.',
+    description: 'Zoekt commerciële ordervrijgaven en toont vrijgave, hold of benodigde escalatie met onderliggende controles.',
     strict: true,
     parameters: {
       type: 'object',
@@ -702,7 +702,7 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
       .slice(0, 25);
     return {
       data: {count: matches.length, orderChecks: matches.map((item) => ({orderReference: item.orderReference, customer: item.customer, incoterm: item.incoterm, orderValue: item.orderValue, netMarginPercentage: item.netMarginPercentage, netProfit: item.netProfit, requestedDeliveryDate: item.requestedDeliveryDate, stockAvailable: item.stockAvailable, complianceComplete: item.complianceComplete, documentationComplete: item.documentationComplete, outcome: item.outcome, owner: item.owner, checkedAt: item.checkedAt, notes: item.notes}))},
-      sources: matches.map((item) => ({kind: 'ordercheck', label: `Ordercheck · ${item.orderReference}`, reference: item.id, updatedAt: item.checkedAt})),
+      sources: matches.map((item) => ({kind: 'ordercheck', label: `Ordervrijgave · ${item.orderReference}`, reference: item.id, updatedAt: item.checkedAt})),
     };
   }
 

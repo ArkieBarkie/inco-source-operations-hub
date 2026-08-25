@@ -1,6 +1,7 @@
 'use client';
 
 import {useMemo, useState} from 'react';
+import Link from 'next/link';
 import {DecisionCard} from '@/components/decision-card';
 import {useOperations} from '@/components/operations-provider';
 import {buildDecisionItems, decisionTotals, type DecisionCategory, type DecisionSeverity} from '@/lib/decision-center';
@@ -12,6 +13,7 @@ export default function DecisionCenterPage() {
   const [severity, setSeverity] = useState<DecisionSeverity | ''>('');
   const [category, setCategory] = useState<DecisionCategory | ''>('');
   const [owner, setOwner] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const decisions = useMemo(() => buildDecisionItems(data), [data]);
   const totals = useMemo(() => decisionTotals(decisions), [decisions]);
   const filtered = decisions.filter((decision) =>
@@ -19,6 +21,8 @@ export default function DecisionCenterPage() {
     && (!category || decision.category === category)
     && (!owner || decision.owner === owner)
   );
+  const hasFilters = Boolean(severity || category || owner);
+  const visible = showAll || hasFilters ? filtered : filtered.filter((decision) => decision.severity !== 'Normaal').slice(0, 6);
   const owners = [...new Set(decisions.map((decision) => decision.owner))];
 
   return (
@@ -40,6 +44,7 @@ export default function DecisionCenterPage() {
             <div className="mt-3 text-3xl font-bold">{euro(totals.orderValueAtRisk)}</div>
             <p className="mt-1 text-sm text-blue-100">orderwaarde gekoppeld aan open beslissingen</p>
             <div className="mt-4 border-t border-white/10 pt-4 text-sm"><b>{euro(totals.netProfitAtRisk)}</b> nettowinst zichtbaar in deze dossiers</div>
+            <Link href="/magazijnbeslissing" className="mt-4 inline-flex rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-navy">Intern / 3PL vergelijken →</Link>
           </div>
         </div>
       </section>
@@ -54,8 +59,10 @@ export default function DecisionCenterPage() {
       </section>
 
       <div className="mt-6 space-y-4">
-        {filtered.length ? filtered.map((decision) => <DecisionCard key={decision.id} decision={decision} />) : <div className="card p-8 text-center"><h2 className="font-bold text-navy">Geen beslissingen binnen dit filter</h2><p className="mt-2 text-sm text-slate-500">De actuele uitzonderingen zijn afgehandeld of vallen buiten de gekozen selectie.</p></div>}
+        {visible.length ? visible.map((decision) => <DecisionCard key={decision.id} decision={decision} />) : <div className="card p-8 text-center"><h2 className="font-bold text-navy">Geen beslissingen binnen dit filter</h2><p className="mt-2 text-sm text-slate-500">De actuele uitzonderingen zijn afgehandeld of vallen buiten de gekozen selectie.</p></div>}
       </div>
+      {!hasFilters && filtered.length > visible.length && <button type="button" onClick={() => setShowAll(true)} className="mt-5 min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-sm font-bold text-navy">Toon ook {filtered.length - visible.length} normale beslissing(en)</button>}
+      {!hasFilters && showAll && filtered.length > 6 && <button type="button" onClick={() => setShowAll(false)} className="mt-5 min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-sm font-bold text-navy">Terug naar prioriteiten</button>}
     </div>
   );
 }

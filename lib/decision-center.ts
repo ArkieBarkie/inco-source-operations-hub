@@ -165,7 +165,7 @@ export function buildDecisionItems(data: OperationsData, now = new Date()): Deci
       owner: existingAction?.owner || orderCheck.owner,
       reference: orderCheck.orderReference,
       href: `/ordercheck?reference=${encodeURIComponent(orderCheck.orderReference)}`,
-      sourceLabel: 'Ordercheck',
+      sourceLabel: 'Ordervrijgave',
       sourceUpdatedAt: orderCheck.checkedAt,
       signals: missing.length ? missing : [`Uitkomst: ${orderCheck.outcome}`],
       orderValue: orderCheck.orderValue,

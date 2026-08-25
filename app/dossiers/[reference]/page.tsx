@@ -54,7 +54,7 @@ export default function OperationsDossierPage() {
     ...shipment.events.map((event) => ({id: event.id, at: event.occurredAt, title: event.title, detail: `${event.status}${event.detail ? ` · ${event.detail}` : ''}`, tone: 'blue'})),
     ...activities.map((activity) => ({id: activity.id, at: `${activity.date}T${activity.startTime || '00:00'}`, title: activity.description, detail: `Planning · ${activity.status} · ${activity.responsibleEmployee}`, tone: activity.status === 'Vertraagd' ? 'red' : 'slate'})),
     ...actions.map((action) => ({id: action.id, at: atNoon(action.createdAt), title: action.title, detail: `${action.type} · ${action.priority} · ${action.owner} · deadline ${action.dueDate}`, tone: action.priority === 'Kritiek' ? 'red' : 'amber'})),
-    ...(orderCheck ? [{id: orderCheck.id, at: orderCheck.checkedAt, title: `Ordercheck: ${orderCheck.outcome}`, detail: `${orderCheck.netMarginPercentage.toFixed(1)}% marge · ${euro(orderCheck.netProfit)} nettowinst`, tone: orderCheck.outcome === 'Vrijgegeven' ? 'green' : 'red'}] : []),
+    ...(orderCheck ? [{id: orderCheck.id, at: orderCheck.checkedAt, title: `Ordervrijgave: ${orderCheck.outcome}`, detail: `${orderCheck.netMarginPercentage.toFixed(1)}% marge · ${euro(orderCheck.netProfit)} nettowinst`, tone: orderCheck.outcome === 'Vrijgegeven' ? 'green' : 'red'}] : []),
   ].sort((a, b) => b.at.localeCompare(a.at));
   const copilotQuestion = encodeURIComponent(`Analyseer dossier ${shipment.reference}. Geef status, risico, mogelijke commerciële impact, ontbrekende informatie en de eerstvolgende veilige actie.`);
 
@@ -68,6 +68,7 @@ export default function OperationsDossierPage() {
         </div>
         <div className="flex flex-wrap gap-2 no-print">
           <button type="button" onClick={() => window.print()} className="rounded-xl border bg-white px-4 py-2.5 text-sm font-bold text-navy">Print dossier</button>
+          <Link href={`/magazijnbeslissing?shipment=${encodeURIComponent(shipment.id)}`} className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-800">Intern / 3PL</Link>
           <Link href={`/copilot?question=${copilotQuestion}`} className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">Analyseer met Inco Assist</Link>
           <Link href="/zendingen" className="rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white">Alle zendingen</Link>
         </div>
@@ -123,10 +124,10 @@ export default function OperationsDossierPage() {
         <aside className="space-y-6">
           <section className="card p-6">
             <p className="label">Commerciële poort</p>
-            <h2 className="mt-2 text-lg font-bold text-navy">{orderCheck ? orderCheck.outcome : 'Nog geen gekoppelde ordercheck'}</h2>
-            {releaseConflict && <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800"><b>Controleconflict gedetecteerd.</b> De ordercheck is vrijgegeven, maar de zending staat geblokkeerd. Herbevestig documentatie en vrijgave voordat de operatie doorgaat.</div>}
+            <h2 className="mt-2 text-lg font-bold text-navy">{orderCheck ? orderCheck.outcome : 'Nog geen gekoppelde ordervrijgave'}</h2>
+            {releaseConflict && <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800"><b>Controleconflict gedetecteerd.</b> De ordervrijgave is afgerond, maar de zending staat geblokkeerd. Herbevestig documentatie en vrijgave voordat de operatie doorgaat.</div>}
             {orderCheck ? <div className="mt-4 space-y-3 text-sm"><Metric label="Orderwaarde" value={euro(orderCheck.orderValue)} /><Metric label="Nettomarge" value={`${orderCheck.netMarginPercentage.toFixed(1)}%`} /><Metric label="Nettowinst" value={euro(orderCheck.netProfit)} /><Check label="Voorraad" value={orderCheck.stockAvailable} /><Check label="Compliance" value={orderCheck.complianceComplete} /><Check label="Documentatie" value={orderCheck.documentationComplete} /></div> : <p className="mt-3 text-sm leading-6 text-slate-500">Voeg de Odoo-orderreferentie toe om waarde, marge en vrijgave in dit dossier op te nemen.</p>}
-            <Link href="/ordercheck" className="mt-5 inline-flex text-sm font-bold text-accent">Open ordercheck →</Link>
+            <Link href="/ordercheck" className="mt-5 inline-flex text-sm font-bold text-accent">Open ordervrijgave →</Link>
           </section>
 
           <section className="card p-6">

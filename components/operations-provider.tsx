@@ -47,11 +47,11 @@ type Context = {
   reset: () => void;
 };
 
-type StoredEnvelope = {schemaVersion: 9; demoDatasetVersion: 2; seededAt: string; data: OperationsData};
+type StoredEnvelope = {schemaVersion: 9; demoDatasetVersion: 4; seededAt: string; data: OperationsData};
 
 const OperationsContext = createContext<Context | null>(null);
 const STORAGE_PREFIX = 'inco-source-operations-v9';
-const DEMO_DATASET_VERSION = 2;
+const DEMO_DATASET_VERSION = 4;
 const OBSOLETE_STORAGE_PREFIXES = ['inco-source-operations-v8', 'inco-source-operations-v7', 'inco-source-operations-v6', 'inco-source-operations-v5', 'inco-source-operations-v4', 'inco-source-operations-v3', 'inco-source-operations-v2'];
 const DEMO_REFRESH_MS = 3 * 24 * 60 * 60 * 1_000;
 

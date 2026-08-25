@@ -12,12 +12,13 @@ import {calculateOperationsKpis, statusForTarget} from '@/lib/kpis';
 import {calculateCompletionOverview, shipmentHandlingMode} from '@/lib/shipment-completion';
 
 export default function ShipmentsPage() {
-  const {data, loadDemoData, clearDemoData, deleteShipment, canEdit} = useOperations();
+  const {data, deleteShipment, canEdit} = useOperations();
   const [form, setForm] = useState<Shipment | 'new' | null>(null);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
   const [direction, setDirection] = useState('');
   const [handling, setHandling] = useState('');
+  const [scope, setScope] = useState<'attention' | 'active' | 'all'>('attention');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
@@ -27,10 +28,10 @@ export default function ShipmentsPage() {
       .filter((shipment) => !status || shipment.status === status)
       .filter((shipment) => !direction || shipment.direction === direction)
       .filter((shipment) => !handling || shipmentHandlingMode(shipment, data) === handling)
+      .filter((shipment) => scope === 'all' || (scope === 'active' ? !['Afgeleverd', 'Geannuleerd'].includes(shipment.status) : shipmentNeedsAttention(shipment)))
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  }, [data, direction, handling, query, status]);
+  }, [data, direction, handling, query, scope, status]);
 
-  const demoCount = data.shipments.filter((shipment) => shipment.source.system === 'demo').length;
   const kpis = useMemo(() => calculateOperationsKpis(data), [data]);
   const completion = useMemo(() => calculateCompletionOverview(data), [data]);
   const active = data.shipments.filter((shipment) => !['Afgeleverd', 'Geannuleerd'].includes(shipment.status)).length;
@@ -60,12 +61,19 @@ export default function ShipmentsPage() {
       </div>
 
       <section className="card mt-6 p-4">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_160px_160px_210px_auto]">
+        <div className="mb-4 flex flex-wrap gap-2" aria-label="Zendingweergave">
+          {([
+            ['attention', `Aandacht · ${attention}`],
+            ['active', `Actief · ${active}`],
+            ['all', `Alles · ${data.shipments.length}`],
+          ] as const).map(([value, label]) => <button key={value} onClick={() => setScope(value)} className={`rounded-full px-4 py-2 text-sm font-bold transition ${scope === value ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{label}</button>)}
+          <span className="self-center text-xs text-slate-500">De aandachtlijst opent standaard; afgeronde dossiers blijven onder Alles beschikbaar.</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_160px_160px_210px]">
           <input aria-label="Zendingen zoeken" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Zoek referentie, klant, leverancier of trackingnummer" className="min-h-11 rounded-xl border px-4 py-2.5" />
           <select aria-label="Filter op zendingstatus" value={status} onChange={(e) => setStatus(e.target.value)} className="min-h-11 rounded-xl border bg-white px-3 py-2.5"><option value="">Alle statussen</option>{[...new Set(data.shipments.map((shipment) => shipment.status))].map((value) => <option key={value}>{value}</option>)}</select>
           <select aria-label="Filter op richting" value={direction} onChange={(e) => setDirection(e.target.value)} className="min-h-11 rounded-xl border bg-white px-3 py-2.5"><option value="">Alle richtingen</option>{['Inbound', 'Outbound', 'Transfer', 'Retour'].map((value) => <option key={value}>{value}</option>)}</select>
           <select aria-label="Filter op afhandeling" value={handling} onChange={(e) => setHandling(e.target.value)} className="min-h-11 rounded-xl border bg-white px-3 py-2.5"><option value="">Alle afhandeling</option>{['Eigen magazijn', 'Extern magazijn / 3PL', 'Direct zonder magazijn'].map((value) => <option key={value}>{value}</option>)}</select>
-          {canEdit && (demoCount ? <button onClick={() => confirm('De complete testomgeving verwijderen? Handmatig ingevoerde gegevens blijven staan.') && clearDemoData()} className="rounded-xl border border-amber-200 px-4 py-2 text-sm font-bold text-amber-800">Verwijder testomgeving</button> : <button onClick={loadDemoData} className="rounded-xl bg-violet-50 px-4 py-2 text-sm font-bold text-violet-800">Laad complete testomgeving</button>)}
         </div>
       </section>
 
@@ -89,7 +97,7 @@ export default function ShipmentsPage() {
                   <div><h3 className="text-sm font-bold text-navy">Tijdlijn</h3><div className="mt-3 space-y-3">{[...shipment.events].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).map((event) => <div key={event.id} className="border-l-2 border-blue-200 pl-3"><p className="text-sm font-semibold">{event.title}</p><p className="text-xs text-slate-500">{formatDateTime(event.occurredAt)}{event.location ? ` · ${event.location}` : ''}</p></div>)}</div></div>
                 </div>
                 {shipment.notes && <p className="mt-4 rounded-xl bg-white p-3 text-sm text-slate-600">{shipment.notes}</p>}
-                <div className="mt-4 flex flex-wrap justify-end gap-2">{canEdit&&<button onClick={() => confirm(`Zending ${shipment.reference} verwijderen?`) && deleteShipment(shipment.id)} className="rounded-lg px-3 py-2 text-xs font-bold text-red-700">Verwijderen</button>}<Link href={`/dossiers/${encodeURIComponent(shipment.reference)}`} className="rounded-lg border bg-white px-4 py-2 text-xs font-bold text-navy">Open compleet dossier</Link>{canEdit&&<button onClick={() => setForm(shipment)} className="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white">Bijwerken</button>}</div>
+                <div className="mt-4 flex flex-wrap justify-end gap-2">{canEdit&&<button onClick={() => confirm(`Zending ${shipment.reference} verwijderen?`) && deleteShipment(shipment.id)} className="rounded-lg px-3 py-2 text-xs font-bold text-red-700">Verwijderen</button>}<Link href={`/magazijnbeslissing?shipment=${encodeURIComponent(shipment.id)}`} className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-bold text-blue-800">Intern / 3PL vergelijken</Link><Link href={`/dossiers/${encodeURIComponent(shipment.reference)}`} className="rounded-lg border bg-white px-4 py-2 text-xs font-bold text-navy">Open compleet dossier</Link>{canEdit&&<button onClick={() => setForm(shipment)} className="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white">Bijwerken</button>}</div>
               </div>}
             </article>
           );

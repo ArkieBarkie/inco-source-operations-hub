@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { allSops } from "@/lib/data";
 import { useOperations } from "@/components/operations-provider";
 import { ActivityList } from "@/components/activity-list";
 import { ActionForm } from "@/components/action-form";
 import { ActivityForm } from "@/components/activity-form";
 import { StatusBadge } from "@/components/ui";
 import { openAction, today, formatDate } from "@/lib/operations";
-import { isShipmentOverdue, shipmentNeedsAttention } from "@/lib/shipments";
+import { shipmentNeedsAttention } from "@/lib/shipments";
 import { buildDecisionItems, decisionTotals } from "@/lib/decision-center";
 import { DecisionCard } from "@/components/decision-card";
 export default function Dashboard() {
@@ -25,31 +24,8 @@ export default function Dashboard() {
     activeShipments = data.shipments.filter((x) => !["Afgeleverd", "Geannuleerd"].includes(x.status)),
     shipmentAttention = data.shipments.filter(shipmentNeedsAttention),
     shipmentsDueToday = activeShipments.filter((x) => x.plannedDeliveryAt && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) === date);
-  const currentDate = new Date(`${date}T12:00:00`),
-    dayOfWeek = currentDate.getDay(),
-    weekStartDate = new Date(currentDate),
-    weekEndDate = new Date(currentDate);
-  weekStartDate.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  weekEndDate.setDate(weekStartDate.getDate() + 6);
-  const weekStart = weekStartDate.toISOString().slice(0, 10),
-    weekEnd = weekEndDate.toISOString().slice(0, 10),
-    weekItems = data.activities.filter((x) => x.date >= weekStart && x.date <= weekEnd),
-    incomingWeek = weekItems.filter((x) => x.activityType === "Leverancierslevering"),
-    pickupsWeek = weekItems.filter((x) => x.activityType === "Ophaling" && !["Afgerond", "Geannuleerd"].includes(x.status)),
-    inboundShipmentsWeek = data.shipments.filter((x) => x.direction === "Inbound" && x.plannedDeliveryAt && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) >= weekStart && new Date(x.plannedDeliveryAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) <= weekEnd),
-    pickupShipmentsWeek = data.shipments.filter((x) => x.plannedPickupAt && new Date(x.plannedPickupAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) >= weekStart && new Date(x.plannedPickupAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }) <= weekEnd && !["Afgeleverd", "Geannuleerd"].includes(x.status)),
-    completedWithTimes = data.shipments.filter((x) => x.actualPickupAt && x.actualDeliveryAt),
-    averageTransitHours = completedWithTimes.length ? Math.round(completedWithTimes.reduce((sum, x) => sum + (new Date(x.actualDeliveryAt as string).getTime() - new Date(x.actualPickupAt as string).getTime()) / 3_600_000, 0) / completedWithTimes.length) : null,
-    staleShipments = activeShipments.filter((x) => Date.now() - new Date(x.updatedAt).getTime() > 72 * 3_600_000),
-    lateActivities = data.activities.filter((x) => x.date < date && !["Afgerond", "Geannuleerd"].includes(x.status)),
-    totalLate = lateActivities.length + data.shipments.filter((shipment) => isShipmentOverdue(shipment)).length,
-    decisions = buildDecisionItems(data),
+  const decisions = buildDecisionItems(data),
     decisionSummary = decisionTotals(decisions);
-  const quickSops = allSops.filter(
-    (s) =>
-      s.status === "Actief" &&
-      ["SOP-004", "SOP-005", "SOP-007", "SOP-013"].includes(s.sopNumber),
-  );
   return (
     <div className="container-page">
       <section className="overflow-hidden rounded-3xl bg-navy text-white">
@@ -66,35 +42,17 @@ export default function Dashboard() {
               bron, eigenaar en een veilige eerstvolgende actie.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              {canEdit && <button
-                onClick={() => setActivity(true)}
-                className="rounded-xl bg-white px-5 py-3 font-bold text-navy"
-              >
-                + Leverafspraak
-              </button>}
-              {canEdit && <button
-                onClick={() => setAction(true)}
-                className="rounded-xl bg-white/10 px-5 py-3 font-bold text-white ring-1 ring-white/20"
-              >
-                + Actie
-              </button>}
               <Link
                 href="/besliscentrum"
-                className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
+                className="rounded-xl bg-white px-5 py-3 font-bold text-navy"
               >
                 Open Besliscentrum
               </Link>
               <Link
-                href="/kpis"
-                className="rounded-xl bg-emerald-500 px-5 py-3 font-bold text-white"
+                href="/dagstart"
+                className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
               >
-                Open KPI Cockpit
-              </Link>
-              <Link
-                href="/copilot"
-                className="rounded-xl bg-white/10 px-5 py-3 font-bold text-white ring-1 ring-white/20"
-              >
-                Vraag Inco Assist
+                Start dagstart
               </Link>
             </div>
           </div>
@@ -157,37 +115,18 @@ export default function Dashboard() {
             late.length ? "Direct verdelen in dagstart" : "Alles binnen termijn"
           }
         />
-        <Kpi
-          value={allSops.filter((x) => x.status === "Actief").length}
-          label="Actieve SOP’s"
-          note="Actuele SOP-bibliotheek"
-        />
+        <Kpi value={todayItems.length} label="Afspraken vandaag" note={`${atRisk.length} zonder bevestigde bloktijd of vertraagd`} tone={atRisk.length ? "red" : "green"} />
       </div>
-      <section className="mt-8">
-        <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-          <div><h2 className="text-xl font-bold text-navy">Weeksturing</h2><p className="mt-1 text-sm text-slate-500">Gebaseerd op de zendingen, activiteiten en acties die in deze portal zijn vastgelegd.</p></div>
-          <span className="text-xs font-bold text-slate-500">{weekStart} t/m {weekEnd}</span>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <Kpi value={averageTransitHours === null ? "—" : `${averageTransitHours}u`} label="Gem. transporttijd" note={averageTransitHours === null ? "Nog geen complete tijdlijn" : `${completedWithTimes.length} afgeronde zending(en)`} />
-          <Kpi value={inboundShipmentsWeek.length || incomingWeek.length} label="Komt deze week binnen" note="Zendingen of geplande leveranciersleveringen" />
-          <Kpi value={pickupShipmentsWeek.length || pickupsWeek.length} label="Nog af te halen" note="Open ophalingen deze week" />
-          <Kpi value={staleShipments.length} label="Zonder update > 3 dagen" tone={staleShipments.length ? "red" : "green"} note="Actieve zendingendossiers" />
-          <Kpi value={totalLate} label="Te laat" tone={totalLate ? "red" : "green"} note="Open zendingen en activiteiten over tijd" />
-        </div>
-      </section>
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.5fr_.75fr]">
         <section>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold text-navy">Planning vandaag</h2>
               <p className="mt-1 text-sm text-slate-500">
                 Leveringen en afhalingen op bevestigde bloktijd.
               </p>
             </div>
-            <Link href="/planning" className="text-sm font-bold text-accent">
-              Volledige planning →
-            </Link>
+            <div className="flex items-center gap-3">{canEdit && <button onClick={() => setActivity(true)} className="text-sm font-bold text-accent">+ Afspraak</button>}<Link href="/planning" className="text-sm font-bold text-accent">Volledige planning →</Link></div>
           </div>
           {todayItems.length ? (
             <ActivityList items={todayItems} />
@@ -197,11 +136,9 @@ export default function Dashboard() {
         </section>
         <aside className="space-y-6">
           <section className="card p-5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <h2 className="font-bold text-navy">Acties & afwijkingen</h2>
-              <Link href="/acties" className="text-sm font-bold text-accent">
-                Alles
-              </Link>
+              <div className="flex items-center gap-3">{canEdit && <button onClick={() => setAction(true)} className="text-sm font-bold text-accent">+ Actie</button>}<Link href="/acties" className="text-sm font-bold text-accent">Alles</Link></div>
             </div>
             {open.length ? (
               <div className="mt-4 space-y-3">
@@ -222,21 +159,6 @@ export default function Dashboard() {
                 Geen openstaande acties.
               </p>
             )}
-          </section>
-          <section className="card p-5">
-            <h2 className="font-bold text-navy">Snelle toegang</h2>
-            <div className="mt-3 grid gap-2">
-              {quickSops.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/sops/${s.slug}`}
-                  className="rounded-xl border bg-white p-3 text-sm font-semibold text-navy hover:border-blue-300 hover:bg-blue-50"
-                >
-                  <span className="mr-2 text-accent">{s.sopNumber}</span>
-                  {s.title}
-                </Link>
-              ))}
-            </div>
           </section>
         </aside>
       </div>

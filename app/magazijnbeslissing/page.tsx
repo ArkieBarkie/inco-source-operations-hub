@@ -77,6 +77,11 @@ export default function Magazijnbeslissing() {
     });
   };
 
+  useEffect(() => {
+    const shipmentId = new URLSearchParams(window.location.search).get('shipment');
+    if (shipmentId && !selectedShipmentId && data.shipments.some((shipment) => shipment.id === shipmentId)) chooseShipment(shipmentId);
+  }, [data.shipments, selectedShipmentId]);
+
   const saveDecision = () => {
     setSaveError('');
     if (!canEdit || !session) return setSaveError('Je account heeft geen schrijfrechten.');
@@ -119,7 +124,6 @@ export default function Magazijnbeslissing() {
       <SourceBadge tone="amber">Waarde en haalbaarheid · bevestigen</SourceBadge>
       <SourceBadge tone="slate">Tarieven · rekenaannames</SourceBadge>
     </div>
-
     <StepNavigation step={step} setStep={setStep} />
 
     <div className="mt-5 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">

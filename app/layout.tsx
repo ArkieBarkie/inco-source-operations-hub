@@ -7,7 +7,7 @@ import {getServerPortalSession} from '@/lib/auth-server';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: {default: 'Inco-Source Operations Hub', template: '%s · Inco-Source'},
-  description: 'Beveiligde interne operationsportal voor planning, zendingen, voorraad, orderchecks en SOP’s.',
+  description: 'Beveiligde interne operationsportal voor planning, zendingen, voorraad, ordervrijgave en SOP’s.',
   applicationName: 'Inco-Source Operations Hub',
   robots: {index: false, follow: false, nocache: true, googleBot: {index: false, follow: false, noimageindex: true}},
   referrer: 'no-referrer',
