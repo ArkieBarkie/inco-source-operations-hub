@@ -18,7 +18,7 @@ import type {WarehouseDecision, WarehouseDecisionRoute} from '@/types/operations
 
 type Step = 1 | 2 | 3;
 
-const routeChoices: WarehouseDecisionRoute[] = ['internal', 'current3pl', 'direct', 'alternative3pl', 'escalate'];
+const routeChoices: WarehouseDecisionRoute[] = ['internal', 'current3pl', 'direct', 'escalate'];
 
 export default function Magazijnbeslissing() {
   const {data, session, canEdit, saveWarehouseDecision} = useOperations();
@@ -109,7 +109,7 @@ export default function Magazijnbeslissing() {
       <div>
         <p className="label">Onderbouwd locatiebesluit</p>
         <h1 className="mt-2 max-w-4xl text-3xl font-bold text-navy sm:text-4xl">Kies de beste afhandelroute</h1>
-        <p className="mt-3 max-w-3xl leading-7 text-slate-600">Selecteer een zending en vergelijk intern Amstelveen, de huidige 3PL, directe levering en een kandidaat-3PL. Een advies verschijnt pas wanneer de noodzakelijke feiten zijn bevestigd.</p>
+        <p className="mt-3 max-w-3xl leading-7 text-slate-600">Selecteer een zending en vergelijk intern Amstelveen, de huidige 3PL en directe levering. Een advies verschijnt pas wanneer de noodzakelijke feiten zijn bevestigd.</p>
       </div>
       <Link href="/sops/sop-007-keuze-intern-magazijn-3pl-en-transfers" className="min-h-11 self-start rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-bold text-accent">Open SOP-007 →</Link>
     </header>
@@ -136,10 +136,9 @@ export default function Magazijnbeslissing() {
             <div className="col-span-2 sm:col-span-1"><Field label="Referentie" hint={inputs.shipmentLinked ? 'Overgenomen uit de portal' : 'Verplicht voor het besluitrecord'}>
               <input value={inputs.reference} onChange={(event) => setInput('reference', event.target.value.slice(0, 150))} placeholder="Bijvoorbeeld INCO-260825-01" />
             </Field></div>
-            <Field label="Handelsstroom" hint="Bepaalt hoe vaste 3PL-kosten worden verdeeld">
+            <Field label="Handelsstroom" hint="Wordt in het besluitrecord vastgelegd">
               <select value={inputs.flow} onChange={(event) => setInput('flow', event.target.value as WarehouseDecisionInputs['flow'])}><option>Kansgestuurd</option><option>Herhaalhandel</option></select>
             </Field>
-            {inputs.flow === 'Herhaalhandel' && <NumberField label="Orders per week" hint="Voor verdeling van de wekelijkse servicefee" value={inputs.weeklyOrders} set={(value) => setInput('weeklyOrders', value)} min={1} step={1} />}
             <NumberField label="Order- / inkoopwaarde" hint="Exclusief btw" value={inputs.orderValue} set={(value) => setInput('orderValue', value)} prefix="€" min={0} step={50} />
             <NumberField label="Verwachte brutomarge" hint="Voor toetsing van logistieke kosten" value={inputs.grossMarginPercentage} set={(value) => setInput('grossMarginPercentage', value)} suffix="%" min={0} max={100} step={0.5} />
             <NumberField label="Aantal pallets" value={inputs.pallets} set={(value) => setInput('pallets', value)} min={1} step={1} />
@@ -170,22 +169,12 @@ export default function Magazijnbeslissing() {
             {inputs.criticalHandling && <TriStateField label="Amstelveen is hiervoor aantoonbaar geschikt" value={inputs.internalCriticalReady} set={(value) => setInput('internalCriticalReady', value)} />}
           </div>
 
-          <details className="mt-6 rounded-2xl border bg-slate-50 p-4">
-            <summary className="cursor-pointer font-bold text-navy">Kandidaat-3PL en offertetoeslagen</summary>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <TriStateField label="Logicall is gekwalificeerd" value={inputs.alternative3plQualified} set={(value) => setInput('alternative3plQualified', value)} />
-              <TriStateField label="Logicall haalt de deadline" value={inputs.alternative3plCanMeetDeadline} set={(value) => setInput('alternative3plCanMeetDeadline', value)} />
-              <CheckCard label="Niet-aangemelde inslag" checked={inputs.unannouncedInbound} set={(value) => setInput('unannouncedInbound', value)} />
-              <CheckCard label="Spoedorder" checked={inputs.rush} set={(value) => setInput('rush', value)} />
-              <CheckCard label="Pallets wikkelen" checked={inputs.wrapPallets} set={(value) => setInput('wrapPallets', value)} />
-            </div>
-          </details>
           <StepActions previous={() => setStep(1)} next={() => setStep(3)} nextLabel="Vergelijk routes" />
         </div>}
 
         {step === 3 && <div className="p-5 sm:p-7">
           <StepHeading number="03" title="Vergelijk en leg het besluit vast" description="Controleer haalbaarheid, kosten, marge-effect en de reden voordat je een locatiebesluit opslaat." />
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {result.options.map((option) => <RouteCard key={option.id} option={option} recommended={result.recommendation === option.id} grossMargin={result.grossMarginValue} />)}
           </div>
 
@@ -218,11 +207,11 @@ export default function Magazijnbeslissing() {
 
     <section className="mt-6 hidden gap-4 md:grid md:grid-cols-3">
       <PartnerCard eyebrow="Huidige 3PL" title="Scan Global Logistics">Tarieven, cut-offs, voorraadbetrouwbaarheid en SLA moeten als actuele bron worden bevestigd.</PartnerCard>
-      <PartnerCard eyebrow="Kandidaat-3PL" title="Logicall Zaandam">Offerte 20260254 is indicatief opgenomen; kwalificatie, deadline en medische handling blijven expliciete poorten.</PartnerCard>
+      <PartnerCard eyebrow="Mogelijke 3PL · placeholder" title="Mainfreight">Gesprek loopt. Nog niet meegenomen in tarieven, aannames, kwalificatie of advies.</PartnerCard>
       <PartnerCard eyebrow="Belangrijk" title="Geen migratie op uitstraling alleen">Voorraadreconciliatie, implementatie-uren, contract, testflow en terugvalscenario blijven onderdeel van de uiteindelijke partnerkeuze.</PartnerCard>
     </section>
 
-    <details className="card mt-6 p-5 md:hidden"><summary className="cursor-pointer list-none"><div className="flex items-center justify-between gap-3"><div><p className="label">Partnercontext</p><h2 className="mt-1 font-bold text-navy">3PL-bronnen en overstapvoorwaarden</h2></div><span className="text-xl text-slate-400">+</span></div></summary><div className="mt-4 space-y-4"><PartnerCard eyebrow="Huidige 3PL" title="Scan Global Logistics">Tarieven, cut-offs, voorraadbetrouwbaarheid en SLA moeten als actuele bron worden bevestigd.</PartnerCard><PartnerCard eyebrow="Kandidaat-3PL" title="Logicall Zaandam">Offerte 20260254 is indicatief opgenomen; kwalificatie, deadline en medische handling blijven expliciete poorten.</PartnerCard><PartnerCard eyebrow="Belangrijk" title="Geen migratie op uitstraling alleen">Voorraadreconciliatie, implementatie-uren, contract, testflow en terugvalscenario blijven onderdeel van de uiteindelijke partnerkeuze.</PartnerCard></div></details>
+    <details className="card mt-6 p-5 md:hidden"><summary className="cursor-pointer list-none"><div className="flex items-center justify-between gap-3"><div><p className="label">Partnercontext</p><h2 className="mt-1 font-bold text-navy">3PL-bronnen en overstapvoorwaarden</h2></div><span className="text-xl text-slate-400">+</span></div></summary><div className="mt-4 space-y-4"><PartnerCard eyebrow="Huidige 3PL" title="Scan Global Logistics">Tarieven, cut-offs, voorraadbetrouwbaarheid en SLA moeten als actuele bron worden bevestigd.</PartnerCard><PartnerCard eyebrow="Mogelijke 3PL · placeholder" title="Mainfreight">Gesprek loopt. Nog niet meegenomen in tarieven, aannames, kwalificatie of advies.</PartnerCard><PartnerCard eyebrow="Belangrijk" title="Geen migratie op uitstraling alleen">Voorraadreconciliatie, implementatie-uren, contract, testflow en terugvalscenario blijven onderdeel van de uiteindelijke partnerkeuze.</PartnerCard></div></details>
   </div>;
 }
 
@@ -276,10 +265,6 @@ function AssumptionsPanel({assumptions, setAssumptions}: {assumptions: Warehouse
     <Assumption label="Huidige 3PL opslag / pallet / dag" value={assumptions.current3plStoragePerPalletDay} set={(value) => set('current3plStoragePerPalletDay', value)} />
     <Assumption label="Huidige 3PL administratie (min)" value={assumptions.current3plAdminMinutes} set={(value) => set('current3plAdminMinutes', value)} />
     <Assumption label="Verwachte 3PL-afwijkingskosten" value={assumptions.current3plExpectedExceptionCost} set={(value) => set('current3plExpectedExceptionCost', value)} />
-    <Assumption label="Logicall inbound / pallet" value={assumptions.alternativeInboundPerPallet} set={(value) => set('alternativeInboundPerPallet', value)} />
-    <Assumption label="Logicall outbound / pallet" value={assumptions.alternativeOutboundPerPallet} set={(value) => set('alternativeOutboundPerPallet', value)} />
-    <Assumption label="Logicall opslag / pallet / week" value={assumptions.alternativeStoragePerPalletWeek} set={(value) => set('alternativeStoragePerPalletWeek', value)} />
-    <Assumption label="Logicall servicefee / week" value={assumptions.alternativeWeeklyServiceFee} set={(value) => set('alternativeWeeklyServiceFee', value)} />
     <Assumption label="Maximaal pallets intern" value={assumptions.maxInternalPallets} set={(value) => set('maxInternalPallets', value)} />
     <Assumption label="Maximale interne minuten" value={assumptions.maxInternalHandlingMinutes} set={(value) => set('maxInternalHandlingMinutes', value)} />
     <Assumption label="Maximale interne opslagdagen" value={assumptions.maxInternalStorageDays} set={(value) => set('maxInternalStorageDays', value)} />

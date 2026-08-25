@@ -1,5 +1,5 @@
 export type WarehouseFlow = 'Kansgestuurd' | 'Herhaalhandel';
-export type WarehouseRouteId = 'internal' | 'current3pl' | 'direct' | 'alternative3pl' | 'escalate';
+export type WarehouseRouteId = 'internal' | 'current3pl' | 'direct' | 'escalate';
 export type DecisionConfidence = 'laag' | 'middel' | 'hoog';
 
 export type WarehouseDecisionInputs = {
@@ -13,7 +13,6 @@ export type WarehouseDecisionInputs = {
   handlingMinutes: number;
   storageDays: number;
   trips: number;
-  weeklyOrders: number;
   structuralStorage: boolean;
   internalCapacityAvailable: boolean | null;
   current3plCanMeetDeadline: boolean | null;
@@ -21,14 +20,9 @@ export type WarehouseDecisionInputs = {
   directDeliveryPossible: boolean | null;
   directDeliveryQualified: boolean | null;
   directDeliveryCost: number;
-  alternative3plQualified: boolean | null;
-  alternative3plCanMeetDeadline: boolean | null;
   fragileOrHighValue: boolean;
   criticalHandling: boolean;
   internalCriticalReady: boolean | null;
-  unannouncedInbound: boolean;
-  rush: boolean;
-  wrapPallets: boolean;
 };
 
 export type WarehouseAssumptions = {
@@ -44,14 +38,6 @@ export type WarehouseAssumptions = {
   current3plStoragePerPalletDay: number;
   current3plAdminMinutes: number;
   current3plExpectedExceptionCost: number;
-  alternativeInboundPerPallet: number;
-  alternativeOutboundPerPallet: number;
-  alternativeStoragePerPalletWeek: number;
-  alternativeWeeklyServiceFee: number;
-  alternativeUnannouncedBase: number;
-  alternativeUnannouncedPerPallet: number;
-  alternativeRushFee: number;
-  alternativeWrapPerPallet: number;
   maxInternalPallets: number;
   maxInternalHandlingMinutes: number;
   maxInternalStorageDays: number;
@@ -86,7 +72,6 @@ export const warehouseRouteLabels: Record<WarehouseRouteId, string> = {
   internal: 'Intern in Amstelveen',
   current3pl: 'Huidige 3PL',
   direct: 'Directe levering',
-  alternative3pl: 'Alternatieve 3PL',
   escalate: 'Escaleren en eerst ontbrekende randvoorwaarden oplossen',
 };
 
@@ -101,7 +86,6 @@ export const defaultWarehouseInputs: WarehouseDecisionInputs = {
   handlingMinutes: 45,
   storageDays: 2,
   trips: 1,
-  weeklyOrders: 10,
   structuralStorage: false,
   internalCapacityAvailable: null,
   current3plCanMeetDeadline: null,
@@ -109,14 +93,9 @@ export const defaultWarehouseInputs: WarehouseDecisionInputs = {
   directDeliveryPossible: null,
   directDeliveryQualified: null,
   directDeliveryCost: 0,
-  alternative3plQualified: null,
-  alternative3plCanMeetDeadline: null,
   fragileOrHighValue: false,
   criticalHandling: false,
   internalCriticalReady: null,
-  unannouncedInbound: false,
-  rush: false,
-  wrapPallets: false,
 };
 
 export const defaultWarehouseAssumptions: WarehouseAssumptions = {
@@ -132,14 +111,6 @@ export const defaultWarehouseAssumptions: WarehouseAssumptions = {
   current3plStoragePerPalletDay: 0.85,
   current3plAdminMinutes: 12,
   current3plExpectedExceptionCost: 10,
-  alternativeInboundPerPallet: 8.5,
-  alternativeOutboundPerPallet: 5.5,
-  alternativeStoragePerPalletWeek: 2.2,
-  alternativeWeeklyServiceFee: 260,
-  alternativeUnannouncedBase: 19.5,
-  alternativeUnannouncedPerPallet: 4.95,
-  alternativeRushFee: 27.5,
-  alternativeWrapPerPallet: 3.09,
   maxInternalPallets: 2,
   maxInternalHandlingMinutes: 60,
   maxInternalStorageDays: 7,
@@ -159,7 +130,6 @@ export function calculateWarehouseDecision(inputs: WarehouseDecisionInputs, assu
     inputs.current3plCanMeetDeadline === null ? 'Deadlinebevestiging huidige 3PL' : null,
     inputs.current3plQualified === null ? 'Kwalificatie huidige 3PL' : null,
     inputs.directDeliveryPossible === null ? 'Haalbaarheid directe levering' : null,
-    inputs.flow === 'Herhaalhandel' && inputs.weeklyOrders <= 0 ? 'Verwachte orders per week' : null,
     inputs.directDeliveryPossible === true && inputs.directDeliveryQualified === null ? 'Traceerbaarheid directe levering' : null,
     inputs.directDeliveryPossible === true && inputs.directDeliveryCost <= 0 ? 'Kosten directe levering' : null,
     inputs.criticalHandling && inputs.internalCriticalReady === null ? 'Interne geschiktheid voor kritieke handling' : null,
@@ -180,18 +150,6 @@ export function calculateWarehouseDecision(inputs: WarehouseDecisionInputs, assu
     + assumptions.current3plAdminMinutes / 60 * assumptions.hourlyRate
     + assumptions.current3plExpectedExceptionCost,
   );
-  const alternativeSurcharges = (inputs.unannouncedInbound ? assumptions.alternativeUnannouncedBase + inputs.pallets * assumptions.alternativeUnannouncedPerPallet : 0)
-    + (inputs.rush ? assumptions.alternativeRushFee : 0)
-    + (inputs.wrapPallets ? inputs.pallets * assumptions.alternativeWrapPerPallet : 0);
-  const serviceFeeDivisor = inputs.flow === 'Herhaalhandel' ? Math.max(1, inputs.weeklyOrders) : 1;
-  const alternative3plCost = money(
-    inputs.pallets * assumptions.alternativeInboundPerPallet
-    + inputs.pallets * assumptions.alternativeOutboundPerPallet
-    + inputs.pallets * Math.max(1, Math.ceil(inputs.storageDays / 7)) * assumptions.alternativeStoragePerPalletWeek
-    + assumptions.alternativeWeeklyServiceFee / serviceFeeDivisor
-    + alternativeSurcharges,
-  );
-
   const internalBlockers = [
     inputs.structuralStorage ? 'Structurele opslag hoort niet in de tijdelijke interne route' : null,
     inputs.internalCapacityAvailable !== true ? (inputs.internalCapacityAvailable === false ? 'Onvoldoende vrije interne palletcapaciteit' : 'Interne capaciteit is nog niet bevestigd') : null,
@@ -209,10 +167,6 @@ export function calculateWarehouseDecision(inputs: WarehouseDecisionInputs, assu
     inputs.directDeliveryPossible === true && inputs.directDeliveryQualified !== true ? 'Traceerbaarheid en documenten zijn niet bevestigd' : null,
     inputs.directDeliveryPossible === true && inputs.directDeliveryCost <= 0 ? 'Directe transportkosten ontbreken' : null,
   ].filter(Boolean) as string[];
-  const alternativeBlockers = [
-    inputs.alternative3plQualified !== true ? 'Kandidaat-3PL is nog niet gekwalificeerd' : null,
-    inputs.alternative3plCanMeetDeadline !== true ? 'Deadline kandidaat-3PL is nog niet bevestigd' : null,
-  ].filter(Boolean) as string[];
   const commonWarnings = inputs.fragileOrHighValue ? ['Extra controle op schade, verzekering en overdracht nodig'] : [];
 
   const option = (id: WarehouseRouteOption['id'], cost: number | null, blockers: string[], warnings: string[] = []): WarehouseRouteOption => ({
@@ -228,7 +182,6 @@ export function calculateWarehouseDecision(inputs: WarehouseDecisionInputs, assu
     option('internal', internalCost, internalBlockers),
     option('current3pl', current3plCost, current3plBlockers),
     option('direct', inputs.directDeliveryPossible === true && inputs.directDeliveryCost > 0 ? money(inputs.directDeliveryCost) : null, directBlockers),
-    option('alternative3pl', alternative3plCost, alternativeBlockers, alternativeSurcharges > 0 ? [`Toeslagen: € ${money(alternativeSurcharges).toFixed(2)}`] : []),
   ];
 
   if (missing.length) return {
@@ -256,8 +209,8 @@ export function calculateWarehouseDecision(inputs: WarehouseDecisionInputs, assu
   if ((best.cost ?? Infinity) > grossMarginValue) return escalationResult('De logistieke kosten zijn hoger dan de verwachte brutomarge. Commerciële herbeoordeling is nodig.', grossMarginValue, options, commonWarnings, assumptions);
 
   const next = feasible.find((item) => item.id !== best.id);
-  const savingsVersusNext = !next || next.cost === null || best.cost === null ? null : money(next.cost - best.cost);
-  const confidence: DecisionConfidence = inputs.shipmentLinked && inputs.alternative3plQualified !== null && inputs.alternative3plCanMeetDeadline !== null ? 'hoog' : 'middel';
+  const savingsVersusNext = !next || next.cost === null || best.cost === null ? null : money(Math.abs(next.cost - best.cost));
+  const confidence: DecisionConfidence = inputs.shipmentLinked ? 'hoog' : 'middel';
   const reason = best.id === 'internal'
     ? `Intern is haalbaar en minimaal € ${assumptions.minimumInternalAdvantage.toFixed(0)} voordeliger dan de beste bevestigde externe route.`
     : `${best.label} is de voordeligste bevestigde haalbare route binnen capaciteit, deadline en kwalificatie.`;
@@ -298,6 +251,5 @@ function assumptionLabels(assumptions: WarehouseAssumptions) {
     `Interne grens ${assumptions.maxInternalPallets} pallets / ${assumptions.maxInternalHandlingMinutes} minuten / ${assumptions.maxInternalStorageDays} dagen`,
     `Minimaal intern voordeel € ${assumptions.minimumInternalAdvantage.toFixed(2)}`,
     `Huidige 3PL: € ${assumptions.current3plInboundPerPallet.toFixed(2)} inbound/pallet, € ${assumptions.current3plOutboundPerOrder.toFixed(2)} outbound/order en € ${assumptions.current3plPickPerCase.toFixed(2)} per colli`,
-    `Kandidaat-3PL: € ${assumptions.alternativeWeeklyServiceFee.toFixed(2)} servicefee per week, verdeeld over het weekvolume`,
   ];
 }

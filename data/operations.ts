@@ -103,12 +103,12 @@ const partnerRows: Array<[string, Partner['kind'], string, string, string, strin
   ['carrier-dhl', 'Transporteur', 'DHL Freight Test', 'Customer Service', 'freight.dhl@example.com', '+31 88 555 0323', 'Benelux distributie', 'Dagelijks', '12:00', 'Utrecht, Nederland', '6–12 zendingen per week', 'TESTDATA · POD binnen 24 uur opvragen.'],
   ['carrier-vdb', 'Transporteur', 'Van den Bosch Testtransport', 'Rik Jansen', 'rik.jansen@example.com', '+31 73 555 0334', 'Spoed- en dedicated transport', 'Op afroep', '08:00', 'Erp, Nederland', '1–3 ritten per week', 'TESTDATA · Alleen na akkoord van een bevoegde operationele eigenaar.'],
   ['3pl-scan', 'Logistieke partner', 'Scan Global Logistics', 'Operations Desk', 'operations.scan@example.com', '+31 88 555 0401', 'Opslag, inbound en fulfilment', 'Dagelijks', '08:00', 'Waddinxveen, Nederland', '90–110 pallets bezet', 'TESTDATA · Voorraadreconciliatie dagelijks om 17:00.'],
-  ['3pl-logicall', 'Logistieke partner', 'Logicall Testlocatie', 'Implementatieteam', 'project.logicall@example.com', '+31 75 555 0412', 'Alternatieve 3PL-propositie', 'Op afspraak', '09:00', 'Zaandam, Nederland', 'Pilotcapaciteit 40 pallets', 'TESTDATA · Alleen scenariovergelijking; nog niet operationeel.'],
+  ['3pl-mainfreight', 'Logistieke partner', 'Mainfreight', 'Nog te bepalen', '', '', 'Mogelijke 3PL', 'Nog te bepalen', '', 'Nog te bepalen', 'Nog te bepalen', 'PLACEHOLDER · Gesprek loopt; nog geen tarieven of operationele afspraken opgenomen.'],
 ];
 
 const partners: Partner[] = partnerRows.map(([id, kind, name, contactPerson, email, phone, service, usualDays, usualTime, location, averageVolume, notes]) => ({
   id, kind, name, contactPerson, email, phone, service, usualDays, usualTime, location, averageVolume, notes,
-  status: id === '3pl-logicall' ? 'Inactief' : 'Actief',
+  status: id === '3pl-mainfreight' ? 'Inactief' : 'Actief',
 }));
 
 const partnerByName = (name?: string) => partners.find((partner) => partner.name === name);

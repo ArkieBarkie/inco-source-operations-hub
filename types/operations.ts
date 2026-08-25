@@ -162,7 +162,7 @@ export type OrderCheckRecord = {
   notes: string;
 };
 
-export type WarehouseDecisionRoute = 'internal' | 'current3pl' | 'direct' | 'alternative3pl' | 'escalate';
+export type WarehouseDecisionRoute = 'internal' | 'current3pl' | 'direct' | 'escalate';
 
 export type WarehouseDecision = {
   id: string;

@@ -159,8 +159,8 @@ export const warehouseDecisionSchema = z.object({
   id,
   shipmentId: id.optional(),
   reference: z.string().trim().min(1).max(150),
-  recommendation: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl', 'escalate']),
-  chosenRoute: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl', 'escalate']),
+  recommendation: z.enum(['internal', 'current3pl', 'direct', 'escalate']),
+  chosenRoute: z.enum(['internal', 'current3pl', 'direct', 'escalate']),
   rationale: z.string().trim().min(3).max(2_000),
   confidence: z.enum(['laag', 'middel', 'hoog']),
   decidedAt: dateTime,
@@ -169,12 +169,12 @@ export const warehouseDecisionSchema = z.object({
   reviewAt: date.optional(),
   inputSnapshot: z.record(z.string().trim().min(1).max(100), z.union([z.string().max(1_000), z.number().finite(), z.boolean(), z.null()])),
   optionSnapshot: z.array(z.object({
-    id: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl']),
+    id: z.enum(['internal', 'current3pl', 'direct']),
     label: z.string().trim().min(1).max(150),
     cost: z.number().finite().min(0).nullable(),
     feasible: z.boolean(),
     blockers: z.array(z.string().trim().min(1).max(500)).max(20),
-  })).min(1).max(4),
+  })).min(1).max(3),
   assumptions: z.array(z.string().trim().min(1).max(500)).max(30),
 });
 

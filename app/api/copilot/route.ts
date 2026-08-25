@@ -273,7 +273,7 @@ const tools: Tool[] = [
   {
     type: 'function',
     name: 'compare_internal_vs_3pl',
-    description: 'Gebruikt exact dezelfde vier-routeberekening als de pagina Intern of 3PL. Geeft geen stellig advies zolang verplichte commerciële, capaciteits-, deadline- of kwalificatiegegevens ontbreken.',
+    description: 'Gebruikt exact dezelfde drie-routeberekening als de pagina Intern of 3PL. Geeft geen stellig advies zolang verplichte commerciële, capaciteits-, deadline- of kwalificatiegegevens ontbreken.',
     strict: true,
     parameters: {
       type: 'object',
@@ -287,7 +287,6 @@ const tools: Tool[] = [
         handlingMinutes: {type: ['number', 'null']},
         storageDays: {type: ['number', 'null']},
         trips: {type: ['number', 'null']},
-        weeklyOrders: {type: ['number', 'null']},
         structuralStorage: {type: ['boolean', 'null']},
         internalCapacityAvailable: {type: ['boolean', 'null']},
         current3plCanMeetDeadline: {type: ['boolean', 'null']},
@@ -295,16 +294,11 @@ const tools: Tool[] = [
         directDeliveryPossible: {type: ['boolean', 'null']},
         directDeliveryQualified: {type: ['boolean', 'null']},
         directDeliveryCost: {type: ['number', 'null']},
-        alternative3plQualified: {type: ['boolean', 'null']},
-        alternative3plCanMeetDeadline: {type: ['boolean', 'null']},
         fragileOrHighValue: {type: ['boolean', 'null']},
         criticalHandling: {type: ['boolean', 'null']},
         internalCriticalReady: {type: ['boolean', 'null']},
-        unannouncedInbound: {type: ['boolean', 'null']},
-        rush: {type: ['boolean', 'null']},
-        wrapPallets: {type: ['boolean', 'null']},
       },
-      required: ['shipmentReference', 'flow', 'orderValue', 'grossMarginPercentage', 'pallets', 'cases', 'handlingMinutes', 'storageDays', 'trips', 'weeklyOrders', 'structuralStorage', 'internalCapacityAvailable', 'current3plCanMeetDeadline', 'current3plQualified', 'directDeliveryPossible', 'directDeliveryQualified', 'directDeliveryCost', 'alternative3plQualified', 'alternative3plCanMeetDeadline', 'fragileOrHighValue', 'criticalHandling', 'internalCriticalReady', 'unannouncedInbound', 'rush', 'wrapPallets'],
+      required: ['shipmentReference', 'flow', 'orderValue', 'grossMarginPercentage', 'pallets', 'cases', 'handlingMinutes', 'storageDays', 'trips', 'structuralStorage', 'internalCapacityAvailable', 'current3plCanMeetDeadline', 'current3plQualified', 'directDeliveryPossible', 'directDeliveryQualified', 'directDeliveryCost', 'fragileOrHighValue', 'criticalHandling', 'internalCriticalReady'],
       additionalProperties: false,
     },
   },
@@ -744,7 +738,6 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
       handlingMinutes: positiveNumber(args.handlingMinutes, 45),
       storageDays: positiveNumber(args.storageDays, 2),
       trips: positiveNumber(args.trips, 1),
-      weeklyOrders: Math.max(1, positiveNumber(args.weeklyOrders, 10)),
       structuralStorage: args.structuralStorage === true,
       internalCapacityAvailable: booleanOrNull(args.internalCapacityAvailable),
       current3plCanMeetDeadline: booleanOrNull(args.current3plCanMeetDeadline),
@@ -752,14 +745,9 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
       directDeliveryPossible: booleanOrNull(args.directDeliveryPossible),
       directDeliveryQualified: booleanOrNull(args.directDeliveryQualified),
       directDeliveryCost: positiveNumber(args.directDeliveryCost, 0),
-      alternative3plQualified: booleanOrNull(args.alternative3plQualified),
-      alternative3plCanMeetDeadline: booleanOrNull(args.alternative3plCanMeetDeadline),
       fragileOrHighValue: args.fragileOrHighValue === true,
       criticalHandling: args.criticalHandling === true,
       internalCriticalReady: booleanOrNull(args.internalCriticalReady),
-      unannouncedInbound: args.unannouncedInbound === true,
-      rush: args.rush === true,
-      wrapPallets: args.wrapPallets === true,
     };
     const decision = calculateWarehouseDecision(inputs);
     const derivedAssumptions = [
@@ -768,7 +756,6 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
       args.handlingMinutes === null ? '45 minuten interne handling' : null,
       args.storageDays === null ? '2 dagen opslag' : null,
       args.trips === null ? '1 interne rit' : null,
-      args.weeklyOrders === null ? '10 orders per week' : null,
       args.orderValue === null && orderCheck ? `Orderwaarde uit ordercheck ${orderCheck.orderReference}` : null,
     ].filter(Boolean);
     return {
