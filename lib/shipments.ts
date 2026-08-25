@@ -34,11 +34,13 @@ export const shipmentNeedsAttention = (shipment: Shipment) =>
 
 export const formatDateTime = (value?: string) => {
   if (!value) return 'Niet vastgelegd';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat('nl-NL', {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Europe/Amsterdam',
-  }).format(new Date(value));
+  }).format(date);
 };
 
 export const shipmentSearchText = (shipment: Shipment) =>
@@ -49,6 +51,9 @@ export const shipmentSearchText = (shipment: Shipment) =>
     shipment.supplier,
     shipment.carrier,
     shipment.trackingNumber,
+    shipment.handlingMode,
+    shipment.warehousePartner,
+    shipment.warehouseReference,
     shipment.origin,
     shipment.destination,
   ]

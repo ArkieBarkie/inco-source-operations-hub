@@ -14,13 +14,15 @@ Status: gereed op 18 augustus 2026.
 
 Prioriteit: P0 vóór echte bedrijfsdata.
 
-- Centrale relationele database met migraties en back-up/herstel.
-- Gebruikerslogin, sessiebeheer en rollen.
-- Tenant-/organisatiegrenzen en autorisatie op iedere serveractie.
-- Centrale auditlog met actor, bron, oud/nieuw, tijdstip en bevestiging.
-- Duurzame rate limiting en verbruiksregistratie per gebruiker/organisatie.
-- Geheimenbeheer, foutmonitoring, privacy- en bewaartermijnen.
-- Gecontroleerde upgrade van Next.js en hernieuwde dependency-audit.
+Status 25 augustus: codefundering gebouwd; provider-, live- en herstelacceptatie nog open.
+
+- Centrale relationele database met migraties (**gebouwd**); providerback-up/herstel nog testen.
+- Gebruikerslogin, sessiebeheer en rollen (**lokaal gebouwd en gemeten**); echte accounts/live deploy open.
+- Tenant-/organisatiegrenzen en serverautorisatie (**gebouwd**); twee-tenanttest open.
+- Centrale auditlog met actor, bron, oud/nieuw, tijdstip en bevestiging (**gebouwd**); retentie open.
+- Duurzame rate limiting per gebruiker/organisatie (**gebouwd in database-stand**); providercheck open.
+- Geheimenbeheer en privacybasis (**gebouwd/gedocumenteerd**); foutmonitoring en bewaartermijnen open.
+- Next.js-upgrade en dependency-audit (**geslaagd; 0 bekende auditbevindingen op 25 augustus**).
 
 Acceptatie: twee gebruikers zien dezelfde data; onbevoegde acties worden server-side geweigerd; iedere mutatie is herleidbaar en herstelbaar.
 

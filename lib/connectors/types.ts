@@ -1,4 +1,4 @@
-import type {Shipment, SourceSystem} from '@/types/operations';
+import type {Article, Shipment, SourceSystem} from '@/types/operations';
 
 export type ConnectorResult<T> = {
   records: T[];
@@ -16,6 +16,7 @@ export interface OperationsConnector {
   readonly mode: 'read-only' | 'read-write';
   testConnection(): Promise<{ok: boolean; message: string}>;
   pullShipments(cursor?: string): Promise<ConnectorResult<Shipment>>;
+  pullArticles(cursor?: string): Promise<ConnectorResult<Article>>;
 }
 
 export type ExternalShipmentIdentity = {

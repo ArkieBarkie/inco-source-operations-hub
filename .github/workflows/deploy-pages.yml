@@ -19,6 +19,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - name: Record release provenance
+        run: echo "RELEASE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - run: npm run verify
         env:
           OPENAI_MODEL: gpt-5.6-luna
+          RELEASE_COMMIT: ${{ env.RELEASE_COMMIT }}
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: operations-hub-build-${{ github.sha }}
+          path: |
+            .next/BUILD_ID
+            package-lock.json
+          retention-days: 30

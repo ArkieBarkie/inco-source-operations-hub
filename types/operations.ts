@@ -16,6 +16,7 @@ export type ActivityStatus =
   | 'Wordt verwerkt'
   | 'Afgerond'
   | 'Vertraagd'
+  | 'Geblokkeerd'
   | 'Geannuleerd';
 
 export type PlannedActivity = {
@@ -77,6 +78,17 @@ export type Article = {
   availableQuantity: number;
   lastUpdated: string;
   notes: string;
+  externalIdentities?: ExternalIdentity[];
+  barcode?: string;
+  hsCode?: string;
+  countryOfOrigin?: string;
+  weightKg?: number;
+  manufacturerReference?: string;
+  salesPrice?: number;
+  purchasePrice?: number;
+  packagingSize?: string;
+  tracking?: 'none' | 'lot' | 'serial';
+  active?: boolean;
 };
 
 export type Location = {
@@ -127,9 +139,10 @@ export type Partner = {
   averageVolume: string;
   notes: string;
   status: 'Actief' | 'Inactief';
+  externalIdentities?: ExternalIdentity[];
 };
 
-export type OrderCheckOutcome = 'Vrijgegeven' | 'Hold' | 'Escalatie nodig';
+export type OrderCheckOutcome = 'Vrijgegeven' | 'Hold' | 'Escalatie nodig' | 'Afgewezen';
 
 export type OrderCheckRecord = {
   id: string;
@@ -156,15 +169,23 @@ export type OrderCheckRecord = {
  */
 export type SourceSystem = 'manual' | 'csv' | 'demo' | 'odoo' | '3pl' | 'carrier';
 export type SyncStatus = 'local' | 'synced' | 'pending' | 'conflict' | 'error';
+export type ExternalIdentity = {
+  source: SourceSystem;
+  externalId: string;
+  companyId?: string;
+};
 export type SourceMetadata = {
   system: SourceSystem;
   externalId?: string;
+  originSystem?: SourceSystem;
+  externalIdentities?: ExternalIdentity[];
   updatedAt: string;
   syncStatus: SyncStatus;
   lastSyncedAt?: string;
 };
 
 export type ShipmentDirection = 'Inbound' | 'Outbound' | 'Transfer' | 'Retour';
+export type ShipmentHandlingMode = 'Eigen magazijn' | 'Extern magazijn / 3PL' | 'Direct zonder magazijn';
 export type ShipmentStatus =
   | 'Concept'
   | 'Gepland'
@@ -206,10 +227,14 @@ export type Shipment = {
   cases: number;
   items: number;
   responsibleEmployee: string;
+  handlingMode?: ShipmentHandlingMode;
+  warehousePartner?: string;
+  warehouseReference?: string;
   notes: string;
   createdAt: string;
   updatedAt: string;
   source: SourceMetadata;
+  externalIdentities?: ExternalIdentity[];
   events: ShipmentEvent[];
 };
 

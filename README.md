@@ -16,10 +16,23 @@ Ieder testrecord is herkenbaar aan `TESTDATA`, een `TEST-`-referentie of het bro
 ## Lokaal starten
 
 ```powershell
-npm install
+npm ci
 Copy-Item .env.example .env.local
+npm run auth:hash -- "kies-een-lang-uniek-testwachtwoord"
 npm run dev
 ```
+
+Vul de bcrypt-uitvoer in `PORTAL_USERS_JSON` in en zet `PORTAL_SESSION_SECRET` op minimaal 32 willekeurige tekens. Zonder geldige sessieconfiguratie blijft de portal bewust dicht. De demo-stand bewaart uitsluitend testdata onder een tenantgebonden browsersleutel en ververst verouderde testrecords automatisch.
+
+## Accounts en rollen
+
+Maak voor iedere persoon een eigen account in `PORTAL_USERS_JSON`; gebruik geen gedeeld “Inco”-account. De portal kent drie rollen:
+
+- `viewer`: bekijken en downloaden, geen wijzigingen;
+- `editor`: operationele gegevens wijzigen, geen account-, audit- of integratiebeheer;
+- `admin`: editorrechten plus accountoverzicht, auditlog en read-only integratietests.
+
+Genereer voor ieder account een afzonderlijke bcrypt-hash met `npm run auth:hash -- "een-uniek-lang-wachtwoord"`. Inloggen gebeurt met de unieke `login`; e-mail is niet nodig. De admin ziet in Instellingen alleen naam, accountnaam, rol, status en sessieversie; hashes en tokens worden nooit naar de browser gestuurd. Zet `active` op `false` of verhoog `sessionVersion` om toegang en bestaande sessies van één gebruiker in te trekken. Wijzig de hostingvariabele en deploy daarna de gereviewde commit opnieuw.
 
 Vul voor echte AI-antwoorden in `.env.local` in:
 
@@ -34,20 +47,25 @@ De API-sleutel is uitsluitend server-side. Gebruik nooit een `NEXT_PUBLIC_OPENAI
 
 De chat zelf gebruikt de OpenAI Responses API met function calling. Operationele feiten komen uit afgeschermde functies voor zendingen, dagstart, planning, acties, relaties, orderchecks, voorraad, SOP’s en de intern/3PL-keuzehulp. Schrijffuncties leveren uitsluitend een gestructureerd voorstel; de browser voert dit pas uit na bevestiging. Responses worden niet opgeslagen bij OpenAI (`store: false`) en het antwoord toont model, bronnen en tokenverbruik.
 
-De testversie begrenst AI-verbruik standaard op 20 vragen per 10 minuten en 100 vragen per rollende 24 uur per client-IP. Een aanvraag mag maximaal 250.000 tekens bevatten en ieder modelantwoord blijft begrensd op 700 outputtokens. Pas de app-limieten indien nodig aan met `COPILOT_REQUESTS_PER_10_MINUTES`, `COPILOT_REQUESTS_PER_24_HOURS` en `COPILOT_MAX_REQUEST_CHARACTERS`.
+De portal begrenst AI-verbruik standaard op 20 vragen per 10 minuten en 100 vragen per rollende 24 uur per tenant, gebruiker en client-IP. Een aanvraag mag maximaal 250.000 tekens bevatten en ieder modelantwoord blijft begrensd op 700 outputtokens. Pas de app-limieten indien nodig aan met `COPILOT_REQUESTS_PER_10_MINUTES`, `COPILOT_REQUESTS_PER_24_HOURS` en `COPILOT_MAX_REQUEST_CHARACTERS`.
 
-Deze lokale teller is hard binnen één draaiende app-instance, maar reset bij een serverherstart en wordt niet tussen meerdere cloudinstances gedeeld. Gebruik vóór publieke uitrol een gedeelde rate-limitopslag en stel daarnaast in OpenAI een hard project-spend limit in.
+In database-stand staan AI- en inloglimieten duurzaam in de gedeelde database. Alleen de expliciete demo-stand gebruikt een begrensde teller per draaiende app-instance. Stel daarnaast in OpenAI een hard project-spend limit in.
 
 ## Architectuur
 
-Deze testversie bewaart operationele invoer nog lokaal in de browser. De zendingenkern gebruikt wel al:
+De portal kent twee expliciete datastanden:
+
+- `demo`: uitsluitend testdata, tenantgebonden in de aangemelde browser;
+- `database`: centrale Postgres-opslag met tenantfiltering, row-level security, optimistic locking en auditlog.
+
+Voer voor database-stand eerst `npm run db:migrate` uit met een aparte migratie-URL. Gebruik voor de draaiende app een databasegebruiker zonder schema- of superuserrechten. De zendingenkern gebruikt:
 
 - interne UUID’s;
-- aparte externe bron-ID’s;
+- meerdere externe bron-ID’s per record en company scope;
 - bron- en synchronisatiemetadata;
 - een canoniek zendingenmodel;
 - een connectorcontract voor externe systemen;
-- een read-only Odoo-adapterplaceholder.
+- een read-only Odoo 19 JSON-2-adapter voor verbindings- en mappingpreviews.
 
 CSV/Excel, een 3PL of Odoo kunnen daardoor later naar hetzelfde model vertalen. Dashboard en Inco Assist hoeven bij een toekomstige koppeling niet opnieuw gebouwd te worden. De bevestigde bedrijfsregels staan centraal in `data/company-profile.ts`.
 
@@ -55,9 +73,21 @@ CSV/Excel, een 3PL of Odoo kunnen daardoor later naar hetzelfde model vertalen. 
 
 Inco Assist gebruikt een serverroute en kan daarom niet als volledige app op GitHub Pages draaien. De actieve demonstratie draait op Netlify: [incohub.netlify.app](https://incohub.netlify.app). Stel `OPENAI_API_KEY` en `OPENAI_MODEL` uitsluitend als server-side omgevingsvariabelen in.
 
-De GitHub Actions-workflow voert voorlopig alleen een productiebuild uit. Centrale accounts en gedeelde databaseopslag zijn de logische vervolgstap na validatie van deze testversie.
+De GitHub Actions-workflow voert typecontrole, productiebuild en een dependency-audit uit en bewaart buildprovenance. Centrale, tenantgebonden databaseopslag is beschikbaar maar moet vóór gebruik met echte data worden gemigreerd en met twee testtenants worden geverifieerd.
 
-De huidige openbare versie is uitsluitend een demo met testgegevens. Zonder gebruikerslogin kan een onbekende bezoeker AI-verbruik veroorzaken en browsergegevens zijn niet gedeeld. Voeg vóór echte bedrijfsdata of bredere uitrol centrale opslag, accounts, rollen, auditlogging, deployment protection en duurzame rate limiting toe.
+Een productiebuild vereist geldige sessievariabelen. De portal beschermt pagina’s, API’s en SOP-downloads, gebruikt HttpOnly/SameSite-sessies, rollen, noindex en securityheaders. In database-stand zijn AI- en loginlimieten duurzaam opgeslagen; zet daarnaast altijd een hard OpenAI-projectbudget.
+
+Odoo blijft read-only totdat de versie/edition, bedrijven, bot-user, record rules, artikelvelden, UoM, locaties, lot/serialbeheer en bronhouderschap in een sandbox zijn bevestigd. De preview importeert of wijzigt niets. Zie [`docs/odoo-integratie-checklist.md`](docs/odoo-integratie-checklist.md).
+
+## Verificatie en deployment
+
+```powershell
+npm ci
+npm run verify
+npm audit --audit-level=high
+```
+
+Netlify bouwt reproduceerbaar via `netlify.toml`. De publieke healthcheck `/api/health` toont alleen de releasecommit en beveiligingsmodus. Zet alle secrets in Netlify met runtime/Functions én Edge/Middleware-scope; zet nooit credentials in `netlify.toml`, Git of `NEXT_PUBLIC_*`. Volg vóór livegang [`docs/security-deployment-runbook.md`](docs/security-deployment-runbook.md).
 
 ## Projectadministratie
 

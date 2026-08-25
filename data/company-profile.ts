@@ -36,7 +36,7 @@ export const companyProfile = {
   annualVolume: {
     value: 1500,
     unit: 'Nog te bevestigen',
-    note: 'Jorn antwoordde “1500 per jaar” op een gecombineerde vraag over orders, leveringen en artikelen. Niet als ordervolume gebruiken totdat de eenheid is bevestigd.',
+    note: 'In de vragenlijst is “1500 per jaar” genoemd bij een gecombineerde vraag over orders, leveringen en artikelen. Niet als ordervolume gebruiken totdat de eenheid is bevestigd.',
   },
   weeklySteering: [
     'Lever- en doorlooptijden',

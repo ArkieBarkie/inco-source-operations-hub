@@ -9,8 +9,10 @@ import { ActivityForm } from "@/components/activity-form";
 import { StatusBadge } from "@/components/ui";
 import { openAction, today, formatDate } from "@/lib/operations";
 import { isShipmentOverdue, shipmentNeedsAttention } from "@/lib/shipments";
+import { buildDecisionItems, decisionTotals } from "@/lib/decision-center";
+import { DecisionCard } from "@/components/decision-card";
 export default function Dashboard() {
-  const { data } = useOperations();
+  const { data, canEdit } = useOperations();
   const [activity, setActivity] = useState(false),
     [action, setAction] = useState(false);
   const date = today(),
@@ -40,7 +42,9 @@ export default function Dashboard() {
     averageTransitHours = completedWithTimes.length ? Math.round(completedWithTimes.reduce((sum, x) => sum + (new Date(x.actualDeliveryAt as string).getTime() - new Date(x.actualPickupAt as string).getTime()) / 3_600_000, 0) / completedWithTimes.length) : null,
     staleShipments = activeShipments.filter((x) => Date.now() - new Date(x.updatedAt).getTime() > 72 * 3_600_000),
     lateActivities = data.activities.filter((x) => x.date < date && !["Afgerond", "Geannuleerd"].includes(x.status)),
-    totalLate = lateActivities.length + data.shipments.filter((shipment) => isShipmentOverdue(shipment)).length;
+    totalLate = lateActivities.length + data.shipments.filter((shipment) => isShipmentOverdue(shipment)).length,
+    decisions = buildDecisionItems(data),
+    decisionSummary = decisionTotals(decisions);
   const quickSops = allSops.filter(
     (s) =>
       s.status === "Actief" &&
@@ -55,28 +59,40 @@ export default function Dashboard() {
               Operations Hub
             </p>
             <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
-              Dit vraagt vandaag aandacht.
+              Dit moet vandaag besloten worden.
             </h1>
             <p className="mt-3 max-w-2xl leading-7 text-blue-100">
-              Zendingen, acties, voorraad en officiële SOP’s — met een
-              bronvaste Inco Assist die alleen de gegevens in deze app gebruikt.
+              Van losse signalen naar gerangschikte beslissingen met impact,
+              bron, eigenaar en een veilige eerstvolgende actie.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <button
+              {canEdit && <button
                 onClick={() => setActivity(true)}
                 className="rounded-xl bg-white px-5 py-3 font-bold text-navy"
               >
                 + Leverafspraak
-              </button>
-              <button
+              </button>}
+              {canEdit && <button
                 onClick={() => setAction(true)}
                 className="rounded-xl bg-white/10 px-5 py-3 font-bold text-white ring-1 ring-white/20"
               >
                 + Actie
-              </button>
+              </button>}
+              <Link
+                href="/besliscentrum"
+                className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
+              >
+                Open Besliscentrum
+              </Link>
+              <Link
+                href="/kpis"
+                className="rounded-xl bg-emerald-500 px-5 py-3 font-bold text-white"
+              >
+                Open KPI Cockpit
+              </Link>
               <Link
                 href="/copilot"
-                className="rounded-xl bg-blue-500 px-5 py-3 font-bold text-white"
+                className="rounded-xl bg-white/10 px-5 py-3 font-bold text-white ring-1 ring-white/20"
               >
                 Vraag Inco Assist
               </Link>
@@ -89,12 +105,29 @@ export default function Dashboard() {
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Mini value={shipmentsDueToday.length} label="Vandaag verwacht" />
-              <Mini value={activeShipments.length} label="Actieve zendingen" />
+              <Mini value={decisionSummary.critical} label="Kritieke besluiten" />
               <Mini value={open.length} label="Open acties" />
-              <Mini value={shipmentAttention.length + atRisk.length} label="Aandacht" />
+              <Mini value={decisionSummary.total} label="Te besluiten" />
             </div>
           </div>
         </div>
+      </section>
+      <section className="mt-7">
+        <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div>
+            <p className="label">Nu beslissen</p>
+            <h2 className="mt-1 text-xl font-bold text-navy">Hoogste operationele impact</h2>
+            <p className="mt-1 text-sm text-slate-500">Automatisch gerangschikt op blokkade, vertraging, ouderdom en commerciële impact.</p>
+          </div>
+          <Link href="/besliscentrum" className="text-sm font-bold text-accent">Alle {decisionSummary.total} beslissingen →</Link>
+        </div>
+        {decisions.length ? (
+          <div className="grid gap-4 xl:grid-cols-2">
+            {decisions.slice(0, 2).map((decision) => <DecisionCard key={decision.id} decision={decision} compact />)}
+          </div>
+        ) : (
+          <div className="card p-6 text-sm text-emerald-800">Geen kritieke operationele beslissingen gevonden.</div>
+        )}
       </section>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi
@@ -159,7 +192,7 @@ export default function Dashboard() {
           {todayItems.length ? (
             <ActivityList items={todayItems} />
           ) : (
-            <Empty action={() => setActivity(true)} />
+            <Empty action={canEdit ? () => setActivity(true) : undefined} />
           )}
         </section>
         <aside className="space-y-6">
@@ -207,8 +240,8 @@ export default function Dashboard() {
           </section>
         </aside>
       </div>
-      {activity && <ActivityForm onClose={() => setActivity(false)} />}{" "}
-      {action && <ActionForm onClose={() => setAction(false)} />}
+      {canEdit && activity && <ActivityForm onClose={() => setActivity(false)} />}{" "}
+      {canEdit && action && <ActionForm onClose={() => setAction(false)} />}
     </div>
   );
 }
@@ -243,19 +276,19 @@ function Kpi({
     </section>
   );
 }
-function Empty({ action }: { action: () => void }) {
+function Empty({ action }: { action?: () => void }) {
   return (
     <div className="card border-dashed p-8 text-center">
       <h3 className="font-bold text-navy">Nog niets gepland</h3>
       <p className="mt-2 text-sm text-slate-500">
         Leg de eerste levering of afhaling vast met een concrete bloktijd.
       </p>
-      <button
+      {action && <button
         onClick={action}
         className="mt-4 rounded-xl bg-navy px-4 py-2 text-sm font-bold text-white"
       >
         Leverafspraak toevoegen
-      </button>
+      </button>}
     </div>
   );
 }

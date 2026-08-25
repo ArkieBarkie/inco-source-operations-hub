@@ -12,6 +12,7 @@ import type {
   StockMovement,
 } from '@/types/operations';
 import {companyProfile} from '@/data/company-profile';
+import {activityStatusForShipment} from '@/lib/operations';
 
 const baseLocations: Location[] = [
   {
@@ -99,7 +100,7 @@ const partnerRows: Array<[string, Partner['kind'], string, string, string, strin
   ['carrier-dachser', 'Transporteur', 'Dachser Testnet', 'Planning Benelux', 'planning.dachser@example.com', '+31 88 555 0301', 'Europees pallettransport', 'Dagelijks', '09:00', 'Zevenaar, Nederland', '8–14 zendingen per week', 'TESTDATA · Escalatie na 30 minuten zonder scanupdate.'],
   ['carrier-dsv', 'Transporteur', 'DSV Test Logistics', 'Control Tower', 'controltower.dsv@example.com', '+31 88 555 0312', 'Wegtransport en groupage', 'Dagelijks', '10:00', 'Venlo, Nederland', '5–10 zendingen per week', 'TESTDATA · ETA-update om 10:00 en 15:00.'],
   ['carrier-dhl', 'Transporteur', 'DHL Freight Test', 'Customer Service', 'freight.dhl@example.com', '+31 88 555 0323', 'Benelux distributie', 'Dagelijks', '12:00', 'Utrecht, Nederland', '6–12 zendingen per week', 'TESTDATA · POD binnen 24 uur opvragen.'],
-  ['carrier-vdb', 'Transporteur', 'Van den Bosch Testtransport', 'Rik Jansen', 'rik.jansen@example.com', '+31 73 555 0334', 'Spoed- en dedicated transport', 'Op afroep', '08:00', 'Erp, Nederland', '1–3 ritten per week', 'TESTDATA · Alleen na akkoord van Jorn of Hidde.'],
+  ['carrier-vdb', 'Transporteur', 'Van den Bosch Testtransport', 'Rik Jansen', 'rik.jansen@example.com', '+31 73 555 0334', 'Spoed- en dedicated transport', 'Op afroep', '08:00', 'Erp, Nederland', '1–3 ritten per week', 'TESTDATA · Alleen na akkoord van een bevoegde operationele eigenaar.'],
   ['3pl-scan', 'Logistieke partner', 'Scan Global Logistics', 'Operations Desk', 'operations.scan@example.com', '+31 88 555 0401', 'Opslag, inbound en fulfilment', 'Dagelijks', '08:00', 'Waddinxveen, Nederland', '90–110 pallets bezet', 'TESTDATA · Voorraadreconciliatie dagelijks om 17:00.'],
   ['3pl-logicall', 'Logistieke partner', 'Logicall Testlocatie', 'Implementatieteam', 'project.logicall@example.com', '+31 75 555 0412', 'Alternatieve 3PL-propositie', 'Op afspraak', '09:00', 'Zaandam, Nederland', 'Pilotcapaciteit 40 pallets', 'TESTDATA · Alleen scenariovergelijking; nog niet operationeel.'],
 ];
@@ -180,7 +181,12 @@ const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction,
       ? 'TESTDATA · Dossier geblokkeerd wegens ontbrekende batchdocumentatie.'
       : status === 'Aangekomen'
         ? 'TESTDATA · Chauffeur gemeld; goederenontvangst en telling zijn gestart.'
-        : 'TESTDATA · Fictieve zending voor de portaal- en Inco Assist-test.';
+      : 'TESTDATA · Fictieve zending voor de portaal- en Inco Assist-test.';
+  const handlingMode = direction === 'Transfer' || index % 6 === 0
+    ? 'Extern magazijn / 3PL' as const
+    : index % 9 === 0
+      ? 'Direct zonder magazijn' as const
+      : 'Eigen magazijn' as const;
   return {
     id: `demo-shipment-${String(number).padStart(3, '0')}`,
     reference,
@@ -201,6 +207,9 @@ const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction,
     cases: 8 + ((index * 7) % 48),
     items: 120 + ((index * 91) % 1_400),
     responsibleEmployee: index % 2 ? 'Hidde' : 'Jorn',
+    handlingMode,
+    warehousePartner: handlingMode === 'Extern magazijn / 3PL' ? 'Scan Global Logistics' : undefined,
+    warehouseReference: handlingMode === 'Extern magazijn / 3PL' ? `SGL-26-${String(7800 + number)}` : undefined,
     notes,
     createdAt,
     updatedAt,
@@ -228,13 +237,6 @@ const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction,
   };
 });
 
-const activityStatusMap = {
-  Concept: 'Verwacht', Gepland: 'Verwacht', Bevestigd: 'Bevestigd', Onderweg: 'Onderweg',
-  Aangekomen: 'Gearriveerd', Afgeleverd: 'Afgerond', Vertraagd: 'Vertraagd',
-  Geblokkeerd: 'Wordt verwerkt', Geannuleerd: 'Geannuleerd',
-} satisfies Record<ShipmentStatus, PlannedActivity['status']>;
-const activityStatus = (status: ShipmentStatus): PlannedActivity['status'] => activityStatusMap[status];
-
 const createActivities = (shipments: Shipment[]): PlannedActivity[] => shipments.slice(0, 20).map((shipment, index) => {
   const activityAt = (shipment.direction === 'Outbound' ? shipment.plannedPickupAt : shipment.plannedDeliveryAt) ?? shipment.updatedAt;
   const supplier = partnerByName(shipment.supplier);
@@ -257,7 +259,7 @@ const createActivities = (shipments: Shipment[]): PlannedActivity[] => shipments
     expectedCases: shipment.cases,
     expectedItems: shipment.items,
     responsibleEmployee: shipment.responsibleEmployee,
-    status: activityStatus(shipment.status),
+    status: activityStatusForShipment(shipment.status),
     notes: 'TESTDATA · Gekoppeld aan het fictieve zendingendossier.',
     slotConfirmed: index % 6 !== 0,
     appointmentContact: supplier?.contactPerson ?? customer?.contactPerson ?? carrier?.contactPerson,

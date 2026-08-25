@@ -1,10 +1,14 @@
 import {NextResponse} from 'next/server';
+import {z} from 'zod';
 import type {ResponseFunctionToolCall, ResponseInput, Tool} from 'openai/resources/responses/responses';
 import {allSops} from '@/lib/data';
 import {COPILOT_RATE_LIMITS, takeCopilotQuota} from '@/lib/copilot-rate-limit';
 import {formatDateTime, isShipmentOverdue, shipmentNeedsAttention, shipmentSearchText, sourceLabels} from '@/lib/shipments';
 import {createOpenAIClient, OPENAI_MODEL, publicOpenAIError} from '@/lib/openai-server';
 import type {ActionItem, Article, OperationsData, OrderCheckRecord, Partner, PlannedActivity, Shipment, StockMovement} from '@/types/operations';
+import {requireRequestPortalSession} from '@/lib/auth-server';
+import {correlationId, csrfError, jsonError, requestOriginIsAllowed, safeLog} from '@/lib/http-security';
+import {actionSchema, activitySchema, articleSchema, movementSchema, orderCheckSchema, partnerSchema, shipmentSchema} from '@/lib/operations-schema';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,7 +30,13 @@ type ShipmentProposal = {
   shipment: Shipment;
   changes?: string[];
 };
-type WriteProposal = PartnerProposal | ShipmentProposal;
+type ActionProposal = {
+  id: string;
+  kind: 'create_action';
+  title: string;
+  action: ActionItem;
+};
+type WriteProposal = PartnerProposal | ShipmentProposal | ActionProposal;
 type ToolResult = {data: unknown; sources: AnswerSource[]; proposals?: WriteProposal[]};
 
 const MAX_RECORDS = 200;
@@ -77,6 +87,28 @@ const tools: Tool[] = [
       type: 'object',
       properties: {owner: {type: ['string', 'null'], description: 'Naam eigenaar of null'}},
       required: ['owner'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function',
+    name: 'prepare_action_create',
+    description: 'Bereid een operationele actie of afwijking voor. Dit slaat nog niets op: de gebruiker controleert eigenaar, prioriteit en deadline en bevestigt daarna apart in de chat.',
+    strict: true,
+    parameters: {
+      type: 'object',
+      properties: {
+        title: {type: 'string'},
+        description: {type: 'string'},
+        type: {type: 'string', enum: ['Actie', 'Afwijking']},
+        priority: {type: 'string', enum: ['Laag', 'Normaal', 'Hoog', 'Kritiek']},
+        owner: {type: 'string', description: 'Jorn, Hidde of Jorn / Hidde'},
+        dueDate: {type: ['string', 'null'], description: 'Deadline als YYYY-MM-DD of null voor vandaag'},
+        relatedParty: {type: ['string', 'null']},
+        relatedReference: {type: ['string', 'null'], description: 'Zending-, order- of andere operationele referentie'},
+        notes: {type: ['string', 'null']},
+      },
+      required: ['title', 'description', 'type', 'priority', 'owner', 'dueDate', 'relatedParty', 'relatedReference', 'notes'],
       additionalProperties: false,
     },
   },
@@ -280,21 +312,33 @@ function cleanMessages(value: unknown): ChatMessage[] {
   });
 }
 
-function cleanArray<T>(value: unknown): T[] {
-  return Array.isArray(value) ? (value.slice(0, MAX_RECORDS) as T[]) : [];
+function cleanArray<T>(schema: z.ZodType<T>, value: unknown): T[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, MAX_RECORDS).flatMap((entry) => {
+    const parsed = schema.safeParse(entry);
+    return parsed.success ? [parsed.data] : [];
+  });
 }
 
 function cleanSnapshot(value: unknown): CopilotSnapshot {
   const snapshot = asRecord(value);
   return {
-    shipments: cleanArray<Shipment>(snapshot.shipments),
-    activities: cleanArray<PlannedActivity>(snapshot.activities),
-    actions: cleanArray<ActionItem>(snapshot.actions),
-    articles: cleanArray<Article>(snapshot.articles),
-    partners: cleanArray<Partner>(snapshot.partners),
-    movements: cleanArray<StockMovement>(snapshot.movements),
-    orderChecks: cleanArray<OrderCheckRecord>(snapshot.orderChecks),
+    shipments: cleanArray(shipmentSchema, snapshot.shipments),
+    activities: cleanArray(activitySchema, snapshot.activities),
+    actions: cleanArray(actionSchema, snapshot.actions),
+    articles: cleanArray(articleSchema, snapshot.articles),
+    partners: cleanArray(partnerSchema, snapshot.partners),
+    movements: cleanArray(movementSchema, snapshot.movements),
+    orderChecks: cleanArray(orderCheckSchema, snapshot.orderChecks),
   };
+}
+
+function validWriteProposals(values: WriteProposal[]) {
+  return values.filter((proposal) => {
+    if (proposal.kind === 'create_partner') return partnerSchema.safeParse(proposal.partner).success;
+    if (proposal.kind === 'create_action') return actionSchema.safeParse(proposal.action).success;
+    return shipmentSchema.safeParse(proposal.shipment).success;
+  });
 }
 
 const normalize = (value: string) => value.trim().toLocaleLowerCase('nl-NL');
@@ -407,6 +451,46 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
     return {
       data: matches.map((item) => ({title: item.title, description: item.description, owner: item.owner, priority: item.priority, dueDate: item.dueDate, status: item.status})),
       sources: matches.map((item) => ({kind: 'action', label: `Actie · ${item.title}`, reference: item.id, updatedAt: item.createdAt})),
+    };
+  }
+
+  if (name === 'prepare_action_create') {
+    const title = typeof args.title === 'string' ? args.title.trim().slice(0, 180) : '';
+    const description = typeof args.description === 'string' ? args.description.trim().slice(0, 1_000) : '';
+    const owner = typeof args.owner === 'string' && args.owner.trim() ? args.owner.trim().slice(0, 120) : 'Jorn / Hidde';
+    const relatedReference = typeof args.relatedReference === 'string' ? args.relatedReference.trim().slice(0, 120) : '';
+    if (!title || !description) {
+      return {data: {prepared: false, missingFields: [!title ? 'titel' : null, !description ? 'omschrijving' : null].filter(Boolean)}, sources: []};
+    }
+    const duplicate = snapshot.actions.find((item) =>
+      !['Opgelost', 'Gesloten'].includes(item.status)
+      && normalize(item.title) === normalize(title)
+    );
+    if (duplicate) {
+      return {
+        data: {prepared: false, alreadyExists: true, title: duplicate.title, owner: duplicate.owner},
+        sources: [{kind: 'action', label: `Actie · ${duplicate.title}`, reference: duplicate.id, updatedAt: duplicate.createdAt}],
+      };
+    }
+    const createdAt = new Date().toLocaleDateString('sv-SE', {timeZone: 'Europe/Amsterdam'});
+    const action: ActionItem = {
+      id: crypto.randomUUID(),
+      title,
+      description: relatedReference ? `${description} Referentie: ${relatedReference}.` : description,
+      type: args.type as ActionItem['type'],
+      priority: args.priority as ActionItem['priority'],
+      owner,
+      relatedParty: typeof args.relatedParty === 'string' ? args.relatedParty.trim().slice(0, 160) : undefined,
+      status: 'Nieuw',
+      createdAt,
+      dueDate: typeof args.dueDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(args.dueDate) ? args.dueDate : createdAt,
+      notes: typeof args.notes === 'string' ? args.notes.trim().slice(0, 1_000) : '',
+    };
+    const proposal: ActionProposal = {id: crypto.randomUUID(), kind: 'create_action', title: `Actie voorbereiden · ${action.title}`, action};
+    return {
+      data: {prepared: true, title: action.title, owner: action.owner, priority: action.priority, dueDate: action.dueDate, message: 'Het actievoorstel wacht op expliciete bevestiging in de portal. Zeg niet dat de actie al is aangemaakt.'},
+      sources: [],
+      proposals: [proposal],
     };
   }
 
@@ -720,6 +804,10 @@ function previewAnswer(question: string, snapshot: CopilotSnapshot) {
 }
 
 export async function POST(request: Request) {
+  const session = await requireRequestPortalSession(request);
+  if (!session) return jsonError('Authenticatie vereist.', 'unauthorized', 401);
+  if (!requestOriginIsAllowed(request)) return csrfError();
+  const requestId = correlationId(request);
   try {
     const rawBody = await request.text();
     if (rawBody.length > COPILOT_RATE_LIMITS.maxRequestCharacters) {
@@ -740,7 +828,7 @@ export async function POST(request: Request) {
       return NextResponse.json({...preview, mode: 'preview', model: null, usage: null}, {headers: noStoreHeaders});
     }
 
-    const quota = takeCopilotQuota(request);
+    const quota = await takeCopilotQuota(request, session);
     if (!quota.allowed) {
       return NextResponse.json({
         error: `De gebruikslimiet is bereikt. Probeer over ongeveer ${Math.ceil(quota.retryAfterSeconds / 60)} minuten opnieuw.`,
@@ -760,12 +848,13 @@ export async function POST(request: Request) {
         model: OPENAI_MODEL,
         input,
         instructions: [
-          'Je bent Inco Assist, de operationele AI-assistent van Inco-Source voor Jorn en Hidde.',
+          'Je bent Inco Assist, de operationele AI-assistent voor het team van Inco-Source.',
           `Vandaag is ${new Date().toLocaleDateString('sv-SE', {timeZone: 'Europe/Amsterdam'})} in de tijdzone Europe/Amsterdam. Gebruik dit om relatieve datums zoals vandaag en morgen om te zetten naar een concrete ISO-datum/tijd.`,
           'Antwoord in helder, compact Nederlands. Geef eerst status/conclusie, daarna risico en eerstvolgende actie als die uit de bron volgt.',
           'Operationele feiten en SOP-inhoud mogen uitsluitend uit functie-uitvoer komen. Verzin nooit statussen, datums, documenten of externe tracking.',
           'Gebruik compare_internal_vs_3pl voor iedere vraag over intern uitvoeren, externe opslag, magazijnkeuze of 3PL en benoem alle gebruikte aannames.',
           'Als de gebruiker expliciet vraagt een klant, leverancier, transporteur of logistieke partner aan te maken, gebruik prepare_partner_create. Zeg daarna duidelijk dat het voorstel nog door de gebruiker moet worden bevestigd.',
+          'Als de gebruiker vraagt een actie, opvolging, ETA-opvraag, klantupdate, controle of afwijking vast te leggen, gebruik prepare_action_create. Toon het voorstel en zeg dat de gebruiker eigenaar, prioriteit en deadline nog moet bevestigen.',
           'Als de gebruiker vraagt een zending aan te maken, gebruik prepare_shipment_create. Vraag door als herkomst of bestemming nog ontbreekt.',
           'Als de gebruiker vraagt een bestaande zending bij te werken, gebruik prepare_shipment_update. Null betekent dat een veld ongewijzigd blijft.',
           'Vraag alleen om ontbrekende informatie die echt noodzakelijk is. Alleen de relatienaam en het relatietype zijn noodzakelijk; geef onbekende optionele velden als null door.',
@@ -814,11 +903,12 @@ export async function POST(request: Request) {
       model: OPENAI_MODEL,
       responseId,
       usage,
-      proposals: writeProposals,
+      proposals: validWriteProposals(writeProposals),
     }, {headers: {...noStoreHeaders, ...quota.headers}});
   } catch (error) {
+    if (error instanceof SyntaxError) return jsonError('Ongeldige JSON-aanvraag.', 'invalid_json', 400, requestId);
     const publicError = publicOpenAIError(error);
-    console.error('Copilot request failed:', publicError.code);
-    return NextResponse.json({error: publicError.message, code: publicError.code}, {status: publicError.status, headers: noStoreHeaders});
+    safeLog('error', 'copilot_request_failed', {correlationId: requestId, tenantId: session.tenantId, userId: session.userId, code: publicError.code});
+    return NextResponse.json({error: publicError.message, code: publicError.code, correlationId: requestId}, {status: publicError.status, headers: {...noStoreHeaders, 'X-Correlation-Id': requestId}});
   }
 }

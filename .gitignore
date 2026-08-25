@@ -11,7 +11,7 @@ Final SOP Inco-Source/
 SOPs-herzien/
 SOPs-herzien-Word/
 *.docx
-!public/sop-documents/*.docx
+!private/sop-documents/*.docx
 *.xlsx
 *.zip
 automation-opportunities.md
@@ -22,6 +22,7 @@ docs/2026-08-18-jorn-input-en-voorstellen.md
 scripts/apply-jorn-knowledge.mjs
 .vercel/
 .netlify/
+deno.lock
 
 # Lokale logs en systeeminstellingen.
 *.log

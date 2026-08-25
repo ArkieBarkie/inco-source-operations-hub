@@ -1,13 +1,17 @@
 import {NextResponse} from 'next/server';
 import {COPILOT_RATE_LIMITS, takeCopilotQuota} from '@/lib/copilot-rate-limit';
 import {createOpenAIClient, getOpenAIApiKey, OPENAI_MODEL, publicOpenAIError} from '@/lib/openai-server';
+import {requireRequestPortalSession} from '@/lib/auth-server';
+import {csrfError, jsonError, requestOriginIsAllowed, safeLog} from '@/lib/http-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const noStoreHeaders = {'Cache-Control': 'no-store, max-age=0'};
 
-export async function GET() {
+export async function GET(request: Request) {
+  const session = await requireRequestPortalSession(request);
+  if (!session) return jsonError('Authenticatie vereist.', 'unauthorized', 401);
   return NextResponse.json({
     configured: Boolean(getOpenAIApiKey()),
     model: OPENAI_MODEL,
@@ -17,6 +21,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await requireRequestPortalSession(request, 'admin');
+  if (!session) return jsonError('Alleen beheerders kunnen de AI-verbinding testen.', 'forbidden', 403);
+  if (!requestOriginIsAllowed(request)) return csrfError();
   const client = createOpenAIClient();
   if (!client) {
     return NextResponse.json({
@@ -29,7 +36,7 @@ export async function POST(request: Request) {
     }, {status: 503, headers: noStoreHeaders});
   }
 
-  const quota = takeCopilotQuota(request);
+  const quota = await takeCopilotQuota(request, session);
   if (!quota.allowed) {
     return NextResponse.json({
       configured: true,
@@ -60,7 +67,7 @@ export async function POST(request: Request) {
     }, {headers: {...noStoreHeaders, ...quota.headers}});
   } catch (error) {
     const publicError = publicOpenAIError(error);
-    console.error('OpenAI connection test failed:', publicError.code);
+    safeLog('warn', 'openai_connection_test_failed', {tenantId: session.tenantId, userId: session.userId, code: publicError.code});
     return NextResponse.json({
       configured: true,
       model: OPENAI_MODEL,
