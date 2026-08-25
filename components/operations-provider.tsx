@@ -11,6 +11,7 @@ import type {
   PlannedActivity,
   Shipment,
   StockMovement,
+  WarehouseDecision,
 } from '@/types/operations';
 import {createDemoOperations, seedOperations} from '@/data/operations';
 import {activityStatusForShipment, shipmentStatusForActivity} from '@/lib/operations';
@@ -39,6 +40,7 @@ type Context = {
   saveArticle: (value: Article) => void;
   saveShipment: (value: Shipment) => void;
   saveOrderCheck: (value: OrderCheckRecord) => void;
+  saveWarehouseDecision: (value: WarehouseDecision) => void;
   deleteShipment: (id: string) => void;
   loadDemoData: () => void;
   clearDemoData: () => void;
@@ -102,6 +104,7 @@ function migrateData(value: unknown): OperationsData {
       externalIdentities: shipment.externalIdentities ?? (shipment.source?.externalId ? [{source: shipment.source.system, externalId: shipment.source.externalId}] : undefined),
     })) : [],
     orderChecks: Array.isArray(raw.orderChecks) ? raw.orderChecks : [],
+    warehouseDecisions: Array.isArray(raw.warehouseDecisions) ? raw.warehouseDecisions : [],
   });
   const parsed = safeOperationsData(migrated);
   return parsed.success ? parsed.data : seedOperations;
@@ -118,6 +121,7 @@ function mergeDemoData(current: OperationsData): OperationsData {
     partners: demo.partners.reduce((items, value) => upsert(items, value), current.partners),
     shipments: demo.shipments.reduce((items, value) => upsert(items, value), current.shipments),
     orderChecks: demo.orderChecks.reduce((items, value) => upsert(items, value), current.orderChecks),
+    warehouseDecisions: current.warehouseDecisions,
   });
 }
 
@@ -347,6 +351,7 @@ export function OperationsProvider({children, session}: {children: React.ReactNo
         : activity),
     })),
     saveOrderCheck: (record) => mutate((current) => ({...current, orderChecks: upsert(current.orderChecks, record)})),
+    saveWarehouseDecision: (decision) => mutate((current) => ({...current, warehouseDecisions: upsert(current.warehouseDecisions, decision)})),
     deleteShipment: (id) => mutate((current) => ({...current, shipments: current.shipments.filter((item) => item.id !== id)})),
     loadDemoData: () => mutate(mergeDemoData),
     clearDemoData: () => mutate((current) => ({
@@ -358,6 +363,7 @@ export function OperationsProvider({children, session}: {children: React.ReactNo
       partners: current.partners.filter((item) => !isDemoRecord(item)),
       shipments: current.shipments.filter((item) => item.source.system !== 'demo' && !isDemoRecord(item)),
       orderChecks: current.orderChecks.filter((item) => !isDemoRecord(item)),
+      warehouseDecisions: current.warehouseDecisions,
     })),
     reset: () => mutate(() => mode === 'demo' ? mergeDemoData(seedOperations) : seedOperations),
   }), [canAdmin, canEdit, data, error, mode, mutate, ready, saveActivityValue, session, syncState]);

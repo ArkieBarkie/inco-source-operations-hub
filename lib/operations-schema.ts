@@ -155,6 +155,29 @@ export const orderCheckSchema = z.object({
   notes: longText,
 });
 
+export const warehouseDecisionSchema = z.object({
+  id,
+  shipmentId: id.optional(),
+  reference: z.string().trim().min(1).max(150),
+  recommendation: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl', 'escalate']),
+  chosenRoute: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl', 'escalate']),
+  rationale: z.string().trim().min(3).max(2_000),
+  confidence: z.enum(['laag', 'middel', 'hoog']),
+  decidedAt: dateTime,
+  decidedByUserId: id,
+  decidedByName: z.string().trim().min(1).max(100),
+  reviewAt: date.optional(),
+  inputSnapshot: z.record(z.string().trim().min(1).max(100), z.union([z.string().max(1_000), z.number().finite(), z.boolean(), z.null()])),
+  optionSnapshot: z.array(z.object({
+    id: z.enum(['internal', 'current3pl', 'direct', 'alternative3pl']),
+    label: z.string().trim().min(1).max(150),
+    cost: z.number().finite().min(0).nullable(),
+    feasible: z.boolean(),
+    blockers: z.array(z.string().trim().min(1).max(500)).max(20),
+  })).min(1).max(4),
+  assumptions: z.array(z.string().trim().min(1).max(500)).max(30),
+});
+
 const shipmentStatus = z.enum(['Concept', 'Gepland', 'Bevestigd', 'Onderweg', 'Aangekomen', 'Afgeleverd', 'Vertraagd', 'Geblokkeerd', 'Geannuleerd']);
 export const shipmentSchema = z.object({
   id,
@@ -204,8 +227,9 @@ export const operationsDataSchema = z.object({
   orderChecks: z.array(orderCheckSchema).max(20_000),
   partners: z.array(partnerSchema).max(20_000),
   shipments: z.array(shipmentSchema).max(20_000),
+  warehouseDecisions: z.array(warehouseDecisionSchema).max(10_000).default([]),
 }).superRefine((value, context) => {
-  const collections = [value.activities, value.actions, value.articles, value.locations, value.movements, value.orderChecks, value.partners, value.shipments];
+  const collections = [value.activities, value.actions, value.articles, value.locations, value.movements, value.orderChecks, value.partners, value.shipments, value.warehouseDecisions];
   for (const collection of collections) {
     const seen = new Set<string>();
     for (const item of collection) {

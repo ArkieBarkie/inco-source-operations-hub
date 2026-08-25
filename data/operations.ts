@@ -52,6 +52,7 @@ export const seedOperations: OperationsData = {
   orderChecks: [],
   partners: [],
   shipments: [],
+  warehouseDecisions: [],
 };
 
 const weekAt = (dayIndex: number, hour: number, minute = 0) => {
@@ -414,6 +415,7 @@ export const createDemoOperations = (): OperationsData => {
     orderChecks: createOrderChecks(shipments),
     partners,
     shipments,
+    warehouseDecisions: [],
   };
 };
 

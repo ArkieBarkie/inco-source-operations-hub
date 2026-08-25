@@ -162,6 +162,31 @@ export type OrderCheckRecord = {
   notes: string;
 };
 
+export type WarehouseDecisionRoute = 'internal' | 'current3pl' | 'direct' | 'alternative3pl' | 'escalate';
+
+export type WarehouseDecision = {
+  id: string;
+  shipmentId?: string;
+  reference: string;
+  recommendation: WarehouseDecisionRoute;
+  chosenRoute: WarehouseDecisionRoute;
+  rationale: string;
+  confidence: 'laag' | 'middel' | 'hoog';
+  decidedAt: string;
+  decidedByUserId: string;
+  decidedByName: string;
+  reviewAt?: string;
+  inputSnapshot: Record<string, string | number | boolean | null>;
+  optionSnapshot: Array<{
+    id: Exclude<WarehouseDecisionRoute, 'escalate'>;
+    label: string;
+    cost: number | null;
+    feasible: boolean;
+    blockers: string[];
+  }>;
+  assumptions: string[];
+};
+
 /**
  * Canonieke bronmetadata. Interne records houden altijd hun eigen UUID; een Odoo-ID
  * of 3PL-ID wordt alleen als externe referentie opgeslagen. Daardoor kan een connector
@@ -247,4 +272,5 @@ export type OperationsData = {
   orderChecks: OrderCheckRecord[];
   partners: Partner[];
   shipments: Shipment[];
+  warehouseDecisions: WarehouseDecision[];
 };

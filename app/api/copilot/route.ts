@@ -9,6 +9,7 @@ import type {ActionItem, Article, OperationsData, OrderCheckRecord, Partner, Pla
 import {requireRequestPortalSession} from '@/lib/auth-server';
 import {correlationId, csrfError, jsonError, requestOriginIsAllowed, safeLog} from '@/lib/http-security';
 import {actionSchema, activitySchema, articleSchema, movementSchema, orderCheckSchema, partnerSchema, shipmentSchema} from '@/lib/operations-schema';
+import {calculateWarehouseDecision, defaultWarehouseInputs, type WarehouseDecisionInputs} from '@/lib/warehouse-decision';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -272,12 +273,15 @@ const tools: Tool[] = [
   {
     type: 'function',
     name: 'compare_internal_vs_3pl',
-    description: 'Maakt dezelfde kosten- en risicoberekening als de pagina Intern of 3PL. Kan aantallen uit een zending overnemen; overige ontbrekende waarden worden expliciet als rekenaanname getoond.',
+    description: 'Gebruikt exact dezelfde vier-routeberekening als de pagina Intern of 3PL. Geeft geen stellig advies zolang verplichte commerciële, capaciteits-, deadline- of kwalificatiegegevens ontbreken.',
     strict: true,
     parameters: {
       type: 'object',
       properties: {
         shipmentReference: {type: ['string', 'null']},
+        flow: {type: ['string', 'null'], enum: ['Kansgestuurd', 'Herhaalhandel', null]},
+        orderValue: {type: ['number', 'null']},
+        grossMarginPercentage: {type: ['number', 'null']},
         pallets: {type: ['number', 'null']},
         cases: {type: ['number', 'null']},
         handlingMinutes: {type: ['number', 'null']},
@@ -286,14 +290,21 @@ const tools: Tool[] = [
         weeklyOrders: {type: ['number', 'null']},
         structuralStorage: {type: ['boolean', 'null']},
         internalCapacityAvailable: {type: ['boolean', 'null']},
-        threePlCanMeetDeadline: {type: ['boolean', 'null']},
+        current3plCanMeetDeadline: {type: ['boolean', 'null']},
+        current3plQualified: {type: ['boolean', 'null']},
+        directDeliveryPossible: {type: ['boolean', 'null']},
+        directDeliveryQualified: {type: ['boolean', 'null']},
+        directDeliveryCost: {type: ['number', 'null']},
+        alternative3plQualified: {type: ['boolean', 'null']},
+        alternative3plCanMeetDeadline: {type: ['boolean', 'null']},
         fragileOrHighValue: {type: ['boolean', 'null']},
         criticalHandling: {type: ['boolean', 'null']},
+        internalCriticalReady: {type: ['boolean', 'null']},
         unannouncedInbound: {type: ['boolean', 'null']},
         rush: {type: ['boolean', 'null']},
         wrapPallets: {type: ['boolean', 'null']},
       },
-      required: ['shipmentReference', 'pallets', 'cases', 'handlingMinutes', 'storageDays', 'trips', 'weeklyOrders', 'structuralStorage', 'internalCapacityAvailable', 'threePlCanMeetDeadline', 'fragileOrHighValue', 'criticalHandling', 'unannouncedInbound', 'rush', 'wrapPallets'],
+      required: ['shipmentReference', 'flow', 'orderValue', 'grossMarginPercentage', 'pallets', 'cases', 'handlingMinutes', 'storageDays', 'trips', 'weeklyOrders', 'structuralStorage', 'internalCapacityAvailable', 'current3plCanMeetDeadline', 'current3plQualified', 'directDeliveryPossible', 'directDeliveryQualified', 'directDeliveryCost', 'alternative3plQualified', 'alternative3plCanMeetDeadline', 'fragileOrHighValue', 'criticalHandling', 'internalCriticalReady', 'unannouncedInbound', 'rush', 'wrapPallets'],
       additionalProperties: false,
     },
   },
@@ -719,52 +730,54 @@ function executeTool(name: string, rawArguments: string, snapshot: CopilotSnapsh
   if (name === 'compare_internal_vs_3pl') {
     const reference = typeof args.shipmentReference === 'string' ? normalize(args.shipmentReference) : '';
     const shipment = reference ? snapshot.shipments.find((item) => shipmentSearchText(item).includes(reference)) : undefined;
-    const pallets = positiveNumber(args.pallets, shipment?.pallets ?? 1);
-    const cases = positiveNumber(args.cases, shipment?.cases ?? 4);
-    const handlingMinutes = positiveNumber(args.handlingMinutes, 45);
-    const storageDays = positiveNumber(args.storageDays, 2);
-    const trips = positiveNumber(args.trips, 1);
-    const weeklyOrders = Math.max(1, positiveNumber(args.weeklyOrders, 25));
-    const structuralStorage = args.structuralStorage === true;
-    const internalCapacityAvailable = args.internalCapacityAvailable !== false;
-    const threePlCanMeetDeadline = args.threePlCanMeetDeadline !== false;
-    const fragileOrHighValue = args.fragileOrHighValue === true;
-    const criticalHandling = args.criticalHandling === true;
-    const internal = (handlingMinutes / 60 + 0.25) * 125 + trips * (0.75 * 125 + 35) + pallets * storageDays * 2.5 + 0.06 * 350;
-    const external = pallets * 18 + 15 + cases * 2.25 + pallets * storageDays * 0.85 + 0.2 * 125 + 0.025 * 400;
-    const logicallSurcharges = (args.unannouncedInbound === true ? 19.5 + pallets * 4.95 : 0) + (args.rush === true ? 27.5 : 0) + (args.wrapPallets === true ? pallets * 3.09 : 0);
-    const logicall = pallets * 8.5 + pallets * 5.5 + pallets * Math.max(1, Math.ceil(storageDays / 7)) * 2.2 + 260 / weeklyOrders + logicallSurcharges;
-    const hardFlags = [
-      structuralStorage ? 'Structurele opslag nodig' : null,
-      !internalCapacityAvailable ? 'Interne capaciteit ontbreekt' : null,
-      pallets > 2 ? 'Meer dan 2 pallets' : null,
-      handlingMinutes > 60 ? 'Meer dan 60 minuten interne handling' : null,
-      storageDays > 7 ? 'Langer dan 7 dagen interne opslag' : null,
-      criticalHandling ? 'Kritieke product- of traceerbaarheidseisen' : null,
-    ].filter(Boolean);
-    const recommendation = !threePlCanMeetDeadline
-      ? (hardFlags.length ? 'Escaleren: geen haalbare standaardroute' : 'Intern in Amstelveen')
-      : (hardFlags.length || internal + 75 >= external ? 'Extern magazijn / 3PL' : 'Intern in Amstelveen');
-    const assumptions = [
+    const orderCheck = shipment?.orderReference ? snapshot.orderChecks.find((item) => item.orderReference === shipment.orderReference) : undefined;
+    const booleanOrNull = (value: unknown) => typeof value === 'boolean' ? value : null;
+    const inputs: WarehouseDecisionInputs = {
+      ...defaultWarehouseInputs,
+      reference: shipment?.reference ?? (typeof args.shipmentReference === 'string' ? args.shipmentReference.slice(0, 150) : ''),
+      shipmentLinked: Boolean(shipment),
+      flow: args.flow === 'Herhaalhandel' ? 'Herhaalhandel' : 'Kansgestuurd',
+      orderValue: positiveNumber(args.orderValue, orderCheck?.orderValue ?? 0),
+      grossMarginPercentage: positiveNumber(args.grossMarginPercentage, 0),
+      pallets: positiveNumber(args.pallets, shipment?.pallets ?? 1),
+      cases: positiveNumber(args.cases, shipment?.cases ?? 4),
+      handlingMinutes: positiveNumber(args.handlingMinutes, 45),
+      storageDays: positiveNumber(args.storageDays, 2),
+      trips: positiveNumber(args.trips, 1),
+      weeklyOrders: Math.max(1, positiveNumber(args.weeklyOrders, 10)),
+      structuralStorage: args.structuralStorage === true,
+      internalCapacityAvailable: booleanOrNull(args.internalCapacityAvailable),
+      current3plCanMeetDeadline: booleanOrNull(args.current3plCanMeetDeadline),
+      current3plQualified: booleanOrNull(args.current3plQualified),
+      directDeliveryPossible: booleanOrNull(args.directDeliveryPossible),
+      directDeliveryQualified: booleanOrNull(args.directDeliveryQualified),
+      directDeliveryCost: positiveNumber(args.directDeliveryCost, 0),
+      alternative3plQualified: booleanOrNull(args.alternative3plQualified),
+      alternative3plCanMeetDeadline: booleanOrNull(args.alternative3plCanMeetDeadline),
+      fragileOrHighValue: args.fragileOrHighValue === true,
+      criticalHandling: args.criticalHandling === true,
+      internalCriticalReady: booleanOrNull(args.internalCriticalReady),
+      unannouncedInbound: args.unannouncedInbound === true,
+      rush: args.rush === true,
+      wrapPallets: args.wrapPallets === true,
+    };
+    const decision = calculateWarehouseDecision(inputs);
+    const derivedAssumptions = [
       args.pallets === null && !shipment ? '1 pallet' : null,
       args.cases === null && !shipment ? '4 colli' : null,
-      args.handlingMinutes === null ? '45 minuten handling' : null,
+      args.handlingMinutes === null ? '45 minuten interne handling' : null,
       args.storageDays === null ? '2 dagen opslag' : null,
       args.trips === null ? '1 interne rit' : null,
-      args.weeklyOrders === null ? '25 orders per week' : null,
-      args.internalCapacityAvailable === null ? 'interne capaciteit beschikbaar' : null,
-      args.threePlCanMeetDeadline === null ? '3PL kan deadline halen' : null,
+      args.weeklyOrders === null ? '10 orders per week' : null,
+      args.orderValue === null && orderCheck ? `Orderwaarde uit ordercheck ${orderCheck.orderReference}` : null,
     ].filter(Boolean);
     return {
       data: {
-        recommendation,
+        decision,
         shipmentFound: shipment ? shipment.reference : null,
-        input: {pallets, cases, handlingMinutes, storageDays, trips, weeklyOrders, structuralStorage, internalCapacityAvailable, threePlCanMeetDeadline, fragileOrHighValue, criticalHandling},
-        costs: {internal: Number(internal.toFixed(2)), generic3pl: Number(external.toFixed(2)), logicallIndicative: Number(logicall.toFixed(2)), internalMinusGeneric3pl: Number((internal - external).toFixed(2))},
-        hardFlags,
-        warnings: fragileOrHighValue ? ['Kwetsbaar of hoge waarde: extra controle nodig'] : [],
-        assumptions,
-        notice: 'Indicatieve keuzehulp volgens de huidige portal-aannames; definitieve tarieven, capaciteit en SLA moeten worden bevestigd.',
+        input: inputs,
+        derivedAssumptions,
+        notice: decision.ready ? 'Indicatieve keuzehulp; leg het uiteindelijke locatiebesluit met motivatie vast in de portal.' : 'Er wordt bewust nog geen advies gegeven. Bevestig eerst de ontbrekende gegevens uit decision.missing.',
       },
       sources: [
         {kind: 'warehouse', label: 'Keuzehulp · Intern of 3PL', reference: 'intern-of-3pl'},
