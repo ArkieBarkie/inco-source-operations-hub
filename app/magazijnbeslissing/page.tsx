@@ -126,16 +126,16 @@ export default function Magazijnbeslissing() {
       <section className="card overflow-hidden">
         {step === 1 && <div className="p-5 sm:p-7">
           <StepHeading number="01" title="Kies de goederenstroom" description="Neem bestaande portaldata over en vul alleen de commerciële of operationele gegevens aan die nog ontbreken." />
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <Field label="Bestaande zending" hint="Neemt referentie, pallets en colli over">
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="col-span-2 sm:col-span-1"><Field label="Bestaande zending" hint="Neemt referentie, pallets en colli over">
               <select value={selectedShipmentId} onChange={(event) => chooseShipment(event.target.value)}>
                 <option value="">Nieuw handmatig scenario</option>
                 {data.shipments.filter((shipment) => !['Afgeleverd', 'Geannuleerd'].includes(shipment.status)).map((shipment) => <option value={shipment.id} key={shipment.id}>{shipment.reference} · {shipment.direction} · {shipment.status}</option>)}
               </select>
-            </Field>
-            <Field label="Referentie" hint={inputs.shipmentLinked ? 'Overgenomen uit de portal' : 'Verplicht voor het besluitrecord'}>
+            </Field></div>
+            <div className="col-span-2 sm:col-span-1"><Field label="Referentie" hint={inputs.shipmentLinked ? 'Overgenomen uit de portal' : 'Verplicht voor het besluitrecord'}>
               <input value={inputs.reference} onChange={(event) => setInput('reference', event.target.value.slice(0, 150))} placeholder="Bijvoorbeeld INCO-260825-01" />
-            </Field>
+            </Field></div>
             <Field label="Handelsstroom" hint="Bepaalt hoe vaste 3PL-kosten worden verdeeld">
               <select value={inputs.flow} onChange={(event) => setInput('flow', event.target.value as WarehouseDecisionInputs['flow'])}><option>Kansgestuurd</option><option>Herhaalhandel</option></select>
             </Field>
@@ -248,7 +248,7 @@ function DecisionSummary({result, goToMissing}: {result: ReturnType<typeof calcu
       {recommendedOption?.cost !== null && recommendedOption && <div className="mt-5 grid grid-cols-2 gap-3 border-t border-white/15 pt-4"><SummaryMetric label="Routekosten" value={money(recommendedOption.cost)} /><SummaryMetric label="Marge na logistiek" value={money(recommendedOption.contributionAfterLogistics)} /></div>}
     </section>
     {!result.ready && <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5"><h3 className="font-bold text-amber-950">Nog te bevestigen</h3><ul className="mt-3 space-y-2 text-sm text-amber-900">{result.missing.slice(0, 6).map((item) => <li key={item}>• {item}</li>)}</ul>{result.missing.length > 6 && <p className="mt-2 text-xs text-amber-700">+ {result.missing.length - 6} overige punten</p>}<button type="button" onClick={goToMissing} className="mt-4 min-h-11 w-full rounded-xl bg-amber-900 px-4 py-2.5 text-sm font-bold text-white">Vul ontbrekende gegevens aan</button></section>}
-    <section className="card p-5"><h3 className="font-bold text-navy">Financieel kader</h3><div className="mt-4 space-y-3"><KeyValue label="Verwachte brutomarge" value={money(result.grossMarginValue)} />{result.savingsVersusNext !== null && <KeyValue label="Verschil met volgende route" value={money(result.savingsVersusNext)} strong />}</div><p className="mt-4 text-xs leading-5 text-slate-500">De uitkomst blijft indicatief totdat werkelijke tarieven, SLA en productkwalificatie zijn bevestigd.</p></section>
+    {(result.grossMarginValue > 0 || result.savingsVersusNext !== null) && <section className="card p-5"><h3 className="font-bold text-navy">Financieel kader</h3><div className="mt-4 space-y-3"><KeyValue label="Verwachte brutomarge" value={money(result.grossMarginValue)} />{result.savingsVersusNext !== null && <KeyValue label="Verschil met volgende route" value={money(result.savingsVersusNext)} strong />}</div><p className="mt-4 text-xs leading-5 text-slate-500">De uitkomst blijft indicatief totdat werkelijke tarieven, SLA en productkwalificatie zijn bevestigd.</p></section>}
   </aside>;
 }
 
