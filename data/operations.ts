@@ -135,15 +135,19 @@ const statusFor = (index: number, dayIndex: number): ShipmentStatus => {
   return index % 3 === 0 ? 'Gepland' : 'Bevestigd';
 };
 
-const shipmentReference = (direction: ShipmentDirection, plannedPickupAt: string, index: number) => {
-  const directionCode: Record<ShipmentDirection, string> = {Inbound: 'IN', Outbound: 'OUT', Transfer: 'TRF', Retour: 'RET'};
+const shipmentDayIndex = (index: number) => index === 0 ? currentBusinessDay() : index % 5;
+
+const shipmentReference = (plannedPickupAt: string, index: number) => {
   const dateCode = localDate(plannedPickupAt).slice(2).replaceAll('-', '');
-  return `IS-${directionCode[direction]}-${dateCode}-${String(index + 1).padStart(2, '0')}`;
+  const dayIndex = shipmentDayIndex(index);
+  const daySequence = Array.from({length: index}, (_, previousIndex) => shipmentDayIndex(previousIndex))
+    .filter((previousDayIndex) => previousDayIndex === dayIndex).length + 1;
+  return `INCO-${dateCode}-${String(daySequence).padStart(2, '0')}`;
 };
 
 const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction, index) => {
   const number = index + 1;
-  const dayIndex = index === 0 ? currentBusinessDay() : index % 5;
+  const dayIndex = shipmentDayIndex(index);
   const status = statusFor(index, dayIndex);
   const supplier = direction === 'Inbound' ? supplierNames[index % supplierNames.length] : undefined;
   const customer = ['Outbound', 'Retour'].includes(direction) ? customerNames[index % customerNames.length] : undefined;
@@ -167,7 +171,7 @@ const createDemoShipmentsInternal = (): Shipment[] => directions.map((direction,
     ? shiftHours(plannedPickupAt, index % 4 === 0 ? 1 : 0)
     : undefined;
   const actualDeliveryAt = status === 'Afgeleverd' ? shiftHours(plannedDeliveryAt, index % 3 === 0 ? -0.5 : 0.25) : undefined;
-  const reference = shipmentReference(direction, plannedPickupAt, index);
+  const reference = shipmentReference(plannedPickupAt, index);
   const orderReference = direction === 'Inbound'
     ? `PO-26-${3100 + number}`
     : direction === 'Transfer'

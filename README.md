@@ -6,7 +6,7 @@ Een compacte Operations Hub voor Jorn en Hidde: dagstart, planning, acties en af
 
 - Registreer inbound, outbound, transfers en retouren in `Zendingen`.
 - De browser krijgt automatisch een duidelijk gemarkeerde testomgeving met 25 zendingen per week, relaties, planning, acties, voorraad en orderchecks.
-- Open `Inco Assist` en kies een actuele `IS-IN-…`- of `IS-OUT-…`-referentie uit het zendingenoverzicht.
+- Open `Inco Assist` en kies een actuele `INCO-JJMMDD-##`-referentie uit het zendingenoverzicht.
 - Ieder operationeel antwoord toont de geraadpleegde bron en laatste update.
 - Zonder OpenAI API-sleutel draait Inco Assist in een gemarkeerde, deterministische previewmodus.
 - Inco Assist kan klanten en zendingen voorbereiden en bestaande zendingen bijwerken. Iedere wijziging verschijnt als voorstel en wordt pas na een expliciete bevestiging in de browser opgeslagen.

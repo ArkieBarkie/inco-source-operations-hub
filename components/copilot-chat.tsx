@@ -98,7 +98,7 @@ export function CopilotChat() {
   const accountName = session?.displayName ?? 'Gebruiker';
   const initials = accountInitials(accountName);
   const suggestions = [
-    `Hoe zit het met zending ${data.shipments[0]?.reference ?? 'IS-OUT-…'}?`,
+    `Hoe zit het met zending ${data.shipments[0]?.reference ?? 'INCO-…'}?`,
     'Welke zendingen vragen nu aandacht?',
     'Geef mij een korte operationele dagstart.',
     `Maak een opvolgactie voor ${data.shipments.find((item) => ['Vertraagd', 'Geblokkeerd'].includes(item.status))?.reference ?? 'de belangrijkste vertraagde zending'}.`,

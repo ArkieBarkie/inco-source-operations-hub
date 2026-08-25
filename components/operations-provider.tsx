@@ -45,11 +45,12 @@ type Context = {
   reset: () => void;
 };
 
-type StoredEnvelope = {schemaVersion: 8; seededAt: string; data: OperationsData};
+type StoredEnvelope = {schemaVersion: 9; demoDatasetVersion: 1; seededAt: string; data: OperationsData};
 
 const OperationsContext = createContext<Context | null>(null);
-const STORAGE_PREFIX = 'inco-source-operations-v8';
-const LEGACY_STORAGE_KEYS = ['inco-source-operations-v7', 'inco-source-operations-v6', 'inco-source-operations-v5', 'inco-source-operations-v4', 'inco-source-operations-v3', 'inco-source-operations-v2'];
+const STORAGE_PREFIX = 'inco-source-operations-v9';
+const DEMO_DATASET_VERSION = 1;
+const OBSOLETE_STORAGE_PREFIXES = ['inco-source-operations-v8', 'inco-source-operations-v7', 'inco-source-operations-v6', 'inco-source-operations-v5', 'inco-source-operations-v4', 'inco-source-operations-v3', 'inco-source-operations-v2'];
 const DEMO_REFRESH_MS = 3 * 24 * 60 * 60 * 1_000;
 
 const upsert = <T extends {id: string}>(items: T[], value: T) =>
@@ -167,22 +168,23 @@ export function OperationsProvider({children, session}: {children: React.ReactNo
         let next = seedOperations;
         let seededAt = new Date().toISOString();
         try {
+          for (const obsoletePrefix of OBSOLETE_STORAGE_PREFIXES) {
+            localStorage.removeItem(`${obsoletePrefix}:${session.tenantId}`);
+            if (session.tenantId === 'inco-source') localStorage.removeItem(obsoletePrefix);
+          }
           const saved = localStorage.getItem(key);
           if (saved) {
             const parsed = JSON.parse(saved) as Partial<StoredEnvelope> | OperationsData;
-            if ('schemaVersion' in parsed && parsed.schemaVersion === 8 && 'data' in parsed) {
+            if ('schemaVersion' in parsed && parsed.schemaVersion === 9 && parsed.demoDatasetVersion === DEMO_DATASET_VERSION && 'data' in parsed) {
               next = migrateData(parsed.data);
               seededAt = typeof parsed.seededAt === 'string' ? parsed.seededAt : seededAt;
-            } else next = migrateData(parsed);
-          } else if (session.tenantId === 'inco-source') {
-            const legacy = LEGACY_STORAGE_KEYS.map((legacyKey) => localStorage.getItem(legacyKey)).find(Boolean);
-            next = legacy ? migrateData(JSON.parse(legacy)) : seedOperations;
+            }
           }
           if (!Number.isFinite(new Date(seededAt).getTime()) || Date.now() - new Date(seededAt).getTime() > DEMO_REFRESH_MS) {
             next = mergeDemoData(next);
             seededAt = new Date().toISOString();
           } else if (!next.shipments.some(isDemoRecord)) next = mergeDemoData(next);
-          localStorage.setItem(key, JSON.stringify({schemaVersion: 8, seededAt, data: next} satisfies StoredEnvelope));
+          localStorage.setItem(key, JSON.stringify({schemaVersion: 9, demoDatasetVersion: DEMO_DATASET_VERSION, seededAt, data: next} satisfies StoredEnvelope));
         } catch {
           next = mergeDemoData(seedOperations);
           setError('Lokale portaldata was beschadigd of niet leesbaar en is vervangen door verse testdata.');
@@ -213,7 +215,7 @@ export function OperationsProvider({children, session}: {children: React.ReactNo
           if (typeof parsed.seededAt === 'string') seededAt = parsed.seededAt;
         } catch { /* De actuele, valide state vervangt de kapotte envelope. */ }
       }
-      localStorage.setItem(key, JSON.stringify({schemaVersion: 8, seededAt, data} satisfies StoredEnvelope));
+      localStorage.setItem(key, JSON.stringify({schemaVersion: 9, demoDatasetVersion: DEMO_DATASET_VERSION, seededAt, data} satisfies StoredEnvelope));
       setSyncState('saved');
     } catch {
       setSyncState('error');
