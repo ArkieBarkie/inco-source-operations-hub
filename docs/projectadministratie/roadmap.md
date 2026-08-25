@@ -14,10 +14,10 @@ Status: gereed op 18 augustus 2026.
 
 Prioriteit: P0 vóór echte bedrijfsdata.
 
-Status 25 augustus: codefundering gebouwd; provider-, live- en herstelacceptatie nog open.
+Status 25 augustus: beveiligde multi-user demo live; databaseprovider-, twee-tenant- en herstelacceptatie nog open.
 
 - Centrale relationele database met migraties (**gebouwd**); providerback-up/herstel nog testen.
-- Gebruikerslogin, sessiebeheer en rollen (**lokaal gebouwd en gemeten**); echte accounts/live deploy open.
+- Gebruikerslogin, sessiebeheer en rollen (**live gebouwd en gemeten**); MFA/SSO-besluit vóór echte data open.
 - Tenant-/organisatiegrenzen en serverautorisatie (**gebouwd**); twee-tenanttest open.
 - Centrale auditlog met actor, bron, oud/nieuw, tijdstip en bevestiging (**gebouwd**); retentie open.
 - Duurzame rate limiting per gebruiker/organisatie (**gebouwd in database-stand**); providercheck open.

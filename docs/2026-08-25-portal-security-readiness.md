@@ -6,11 +6,11 @@ Lokale herstelbranch: `codex/audit-readiness`
 
 ## Conclusie
 
-**Huidige live portal: NO-GO.** De live Netlify-versie is op 25 augustus read-only gemeten als publiek toegankelijk: `/` en een rechtstreeks SOP-document antwoordden met `200`, `/login` bestond niet, `/api/copilot/status` antwoordde anoniem met `200` en de geteste securityheaders ontbraken. Gebruik de live URL daarom niet met echte persoonsgegevens, Odoo-credentials of operationele data.
+**Live baseline vóór hersteldeploy: NO-GO.** De oude Netlify-versie is op 25 augustus read-only gemeten als publiek toegankelijk: `/` en een rechtstreeks SOP-document antwoordden met `200`, `/login` bestond niet, `/api/copilot/status` antwoordde anoniem met `200` en de geteste securityheaders ontbraken.
 
-**Lokale herstelbranch: conditionele GO voor een begeleide demonstratie met testdata.** De branch heeft individuele accounts, viewer/editor/admin-rollen, tenantclaims, server-side API-autorisatie, een afgeschermde demo-stand, beveiligde SOP-downloads, invoervalidatie, securityheaders, healthcheck en een read-only Odoo-preview. De productiebuild en lokale accountmatrix zijn geslaagd.
+**Huidige live portal: GO voor een begeleide demonstratie met uitsluitend testdata.** Netlify-deploy `6a8d83b6a5e991d416e0a119` draait commit `d73ff32e88e4` in expliciete `demo`-stand. Anonieme pagina’s gaan naar `/login`, API’s geven `401`, SOP’s zijn afgeschermd, securityheaders zijn live gemeten en de persoonlijke accounts `jorn`/`hidde` (`editor`) en `erik` (`admin`) zijn live getest.
 
-**Operationeel gebruik en Odoo-write-back: NO-GO** totdat de database/RLS-isolatie met twee tenants, back-up/herstel, Netlify-configuratie, echte accounts, monitoring en Odoo-sandboxmapping aantoonbaar zijn getest. Import en write-back blijven daarom in de code uitgeschakeld.
+**Operationeel gebruik met echte data en Odoo-write-back: NO-GO** totdat de database/RLS-isolatie met twee tenants, back-up/herstel, monitoring, MFA/SSO-besluit en Odoo-sandboxmapping aantoonbaar zijn getest. Import en write-back blijven daarom in de code uitgeschakeld.
 
 ## Bewijscategorieën
 
@@ -21,18 +21,18 @@ Lokale herstelbranch: `codex/audit-readiness`
 
 ## Beknopte scorecard
 
-| Onderdeel | Huidig live | Lokale herstelbranch | Bewijs |
+| Onderdeel | Oude live baseline | Huidige live demo | Bewijs |
 | --- | ---: | ---: | --- |
 | Authenticatie en accounts | 1/10 | 8.5/10 | Live/code verified + measured |
-| Autorisatie en rollen | 1/10 | 8.5/10 | Measured API-rolmatrix |
+| Autorisatie en rollen | 1/10 | 8.5/10 | Live API-rolmatrix |
 | Tenant- en data-isolatie | 1/10 | 6/10 | Code verified; database niet geverifieerd |
-| Secrets en configuratie | 4/10 | 8/10 | Code verified; Netlify niet geverifieerd |
+| Secrets en configuratie | 4/10 | 8.5/10 | Live health/release verified |
 | Invoervalidatie en foutafhandeling | 5/10 | 8.5/10 | Code verified + measured build/UI |
-| Sessies en API-beveiliging | 1/10 | 8/10 | Measured + code verified |
+| Sessies en API-beveiliging | 1/10 | 8.5/10 | Live measured + code verified |
 | Odoo-readiness | 2/10 | 6.5/10 | Connector code verified; sandbox niet geverifieerd |
 | Logging, audit en privacy | 3/10 | 7/10 | Code verified; externe monitoring/retentie open |
-| Build en dependencies | 6/10 | 9/10 | Measured |
-| **Totaal** | **2.7/10** | **7.7/10** | Conditioneel |
+| Build en dependencies | 6/10 | 9/10 | Netlify build + dependency audit measured |
+| **Totaal** | **2.7/10** | **7.9/10** | GO uitsluitend voor begeleide demo met testdata |
 
 ## Wat lokaal is hersteld
 
@@ -53,10 +53,10 @@ Lokale herstelbranch: `codex/audit-readiness`
 
 | Prio | Bestand/component | Bevinding en risico | Aanbeveling/status | Inspanning | Acceptatiecriteria |
 | --- | --- | --- | --- | --- | --- |
-| P0 | Live Netlify-deploy | Portal en SOP’s zijn live anoniem bereikbaar; echte data of credentials kunnen uitlekken. | **Lokaal opgelost, nog niet live.** Deploy alleen een gereviewde commit met echte persoonlijke accounts en secretvariabelen. | 1–2 uur + review | Anoniem `/` → login, API → 401, oude SOP-URL niet publiek, nieuwe SOP-route alleen na login. |
-| P0 | Live `/api/copilot/status` en copilotroute | Status is publiek en de oude copilotroute mist de nieuwe accountgrens; misbruik kan kosten en dataverwerking veroorzaken. | **Lokaal opgelost, nog niet live.** Activeer OpenAI pas na deploycheck en projectbudget. | 1 uur | Anonieme status/chat → 401; viewer mag vragen, alleen admin test verbinding; limieten en budgetalarm aantoonbaar. |
+| P0 | Live Netlify-deploy | De oude portal en SOP’s waren anoniem bereikbaar. | **Opgelost en live verified.** De demo draait afgeschermd op commit `d73ff32e88e4`. | Afgerond | Anoniem `/` → login, API → 401, oude SOP-URL niet publiek, nieuwe SOP-route alleen na login. |
+| P0 | Live `/api/copilot/status` en copilotroute | De oude statusroute was publiek; dit kon misbruik en kosten veroorzaken. | **Opgelost en live verified.** Activeer echte AI-antwoorden pas met een bevestigd projectbudget. | Code afgerond; budgetbesluit open | Anonieme status/chat → 401; alleen admin test verbinding; limieten code verified; providerbudget nog controleren. |
 | P0 | `migrations/001_portal_security.sql`, `lib/database.ts` | RLS en tenanttransacties zijn code verified maar niet tegen Postgres getest; configuratiefouten kunnen tenantdata mengen. | Migreer een geïsoleerde database met aparte migratie- en runtime-rollen; test tenant A/B en optimistic locking. | 0.5–1 dag | Runtime-rol heeft geen superuser/BYPASSRLS/schema; A leest/schrijft nooit B; gelijktijdige edit geeft 409; hersteltest slaagt. |
-| P0 | Netlify-omgeving en release | Lokale beveiliging is niet gelijk aan de huidige live release; runtime/Functions/proxy-scope van secrets is niet geverifieerd. | Configureer `PORTAL_SESSION_SECRET`, echte `PORTAL_USERS_JSON`, `PORTAL_ORIGIN`, expliciete `PORTAL_DATA_MODE` en `RELEASE_COMMIT`; deploy daarna gecontroleerd. | 1–2 uur | `/api/health` is 200, juiste commit/mode/auth, live rolmatrix en securityheaders gelijk aan lokaal. |
+| P0 | Netlify-omgeving en release | Onjuiste runtime-/Edge-scope kon de portal open of onbruikbaar maken. | **Opgelost en live verified.** Sessiesleutel, accounts, origin, demo-modus en release staan afgeschermd in productie. | Afgerond | `/api/health` is 200 op `d73ff32e88e4`, `demo`, auth actief; rolmatrix en headers live geslaagd. |
 | P1 | `lib/auth-*`, admin accountoverzicht | Accountfundering is gereed en gebruikt geen e-mail; productieaccounts/wachtwoorden horen uitsluitend in Netlify. MFA ontbreekt. | Maak persoonlijke editoraccounts voor Jorn en Hidde en een persoonlijk adminaccount voor Erik. Professional advice: SSO/MFA vóór structureel gebruik met echte data. | 1–4 uur; SSO 1–3 dagen | Geen gedeelde accounts; sterke unieke wachtwoorden; intrekking via `active`/`sessionVersion` getest; MFA/SSO-besluit vastgelegd. |
 | P1 | `lib/connectors/odoo.ts`, Odoo checklist | API-model en artikel-/zendingvelden zijn niet tegen de eigen Odoo-database gevalideerd; verkeerde bronhouderschap kan data overschrijven. | Gebruik dedicated bot-user, minimale record rules en read-only sandboxpreviews; keur mapping en company scope record voor record goed. | 1–2 dagen | Test/Custom-plan bevestigd; preview ≤20; company A/B afgeschermd; UoM, varianten, barcode, HS/oorsprong/gewicht/verpakking/lots/locaties gereconcilieerd; write-back blijft uit. |
 | P1 | Databaseprovider/back-ups | Snapshot en auditlog bestaan in code, maar providerback-up, restore en retentie zijn niet geconfigureerd. | Configureer point-in-time/back-ups, bewaartermijn en kwartaalrestore in geïsoleerde omgeving. | 0.5–1 dag | Gedocumenteerde RPO/RTO; succesvolle restore; tenanttelling en checksums gecontroleerd. |
@@ -76,13 +76,15 @@ Lokale herstelbranch: `codex/audit-readiness`
 - Geauthenticeerde SOP-download: 200, correct DOCX-MIME, attachment en `no-store`; oude publieke URL wordt naar login gestuurd.
 - Lokale productie zonder configuratie: health 503 `degraded`, anonieme pagina 307, API 401, kwaadaardige Origin 403; CSP bevat productie niet `unsafe-eval`; HSTS, DENY, noindex en no-store aanwezig.
 - Browser: viewer-, editor- en adminflow; editorvalidatie en lokale save; viewer zonder bewerkacties; adminaccountoverzicht; mobiele navigatie en dashboard op 390×844 en 320×700.
-- Live Netlify op 25 augustus: `/` 200 zonder auth, `/login` 404, `/api/health` 404, `/api/copilot/status` 200, rechtstreeks SOP-document 200, geteste securityheaders afwezig.
+- Oude live baseline op 25 augustus: `/` 200 zonder auth, `/login` 404, `/api/health` 404, `/api/copilot/status` 200, rechtstreeks SOP-document 200, geteste securityheaders afwezig.
+- Nieuwe live deploy `6a8d83b6a5e991d416e0a119`: health 200 op commit `d73ff32e88e4`, `demo`, auth actief; anoniem 307/401; oude SOP-URL 307; volledige CSP/HSTS/frame/no-sniff/noindex/no-store-headers aanwezig.
+- Live accounts: Jorn en Hidde loggen in als `editor`, Erik als `admin`; editor krijgt 403 op admin/Odoo-beheer, admin ziet exact drie accounts; geen e-mailvelden, hashes of tokens in het accountoverzicht.
+- Live sessiecookies: HttpOnly, Secure en SameSite=Strict; geauthenticeerde SOP-download 200 met correct DOCX-MIME en `no-store`.
 - Secretscan van werkboom en Git-zoekactie: geen echte portal-, OpenAI-, database- of Odoo-credentials gevonden; lokale testcredentials zijn niet naar bestanden geschreven.
 
 ## Niet geverifieerd
 
 - Werkelijke Postgres-migratie, RLS met twee tenants, runtime grants, back-up en restore: lokaal was geen Postgres/Docker beschikbaar.
-- Netlify environment scopes, nieuwe releasecommit en headers na deploy.
 - Odoo-plan, Odoo-versie, company IDs, bot-user, record rules, dynamische `/doc`-velden en API-sleutel.
 - OpenAI-projectbudget/alerts en externe foutmonitoring.
 - MFA/SSO-keuze en beheerproces voor periodieke wachtwoordrotatie.
@@ -90,8 +92,8 @@ Lokale herstelbranch: `codex/audit-readiness`
 ## Go-livevolgorde
 
 1. Installeer de eerstvolgende beveiligingspatch voor Next.js die vóór de release beschikbaar is; herhaal build en audit.
-2. Maak persoonlijke accounts en configureer de Netlify-secrets zonder ze in Git/chat te plaatsen.
-3. Deploy de gereviewde herstelcommit naar een preview en voer de complete rolmatrix uit.
-4. Voor 9 september: publiceer desgewenst uitsluitend de afgeschermde `demo`-stand met testdata.
-5. Voor echte data: migreer Postgres, test twee tenants, back-up/restore en monitoring.
+2. **Afgerond:** persoonlijke accountnamen en Netlify-secrets geconfigureerd; tijdelijke wachtwoorden afzonderlijk overdragen en daarna wijzigen.
+3. **Afgerond:** gereviewde commit live gedeployed en volledige rolmatrix uitgevoerd.
+4. Voor 9 september: gebruik uitsluitend de afgeschermde `demo`-stand met testdata.
+5. Voor echte data: migreer Postgres, test twee tenants, back-up/restore, MFA/SSO en monitoring.
 6. Daarna pas: Odoo read-only sandboxpreview en mappingacceptatie; write-back blijft een afzonderlijk go/no-go-besluit.
